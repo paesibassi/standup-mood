@@ -1,0 +1,32 @@
+{
+  "name": "standup-mood",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "start": "webpack-dev-server --mode development --open",
+    "build": "webpack --mode production",
+    "lint": "eslint --cache --format codeframe --ext mjs,jsx,js src test"
+  },
+  "keywords": [],
+  "author": "Federico Calore",
+  "license": "ISC",
+  "dependencies": {
+    "prop-types": "^15.8.1",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "react-hot-loader": "^4.13.0"
+  },
+  "devDependencies": {
+    "@neutrinojs/airbnb": "^9.5.0",
+    "@neutrinojs/jest": "^9.5.0",
+    "@neutrinojs/react": "^9.5.0",
+    "eslint": "^7.32.0",
+    "jest": "^26.6.3",
+    "neutrino": "^9.5.0",
+    "webpack": "^4.46.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.3"
+  }
+}
