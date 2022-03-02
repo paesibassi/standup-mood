@@ -9,6 +9,7 @@ module.exports = {
   use: [
     airbnb(),
     react({
+      publicPath: "/",
       html: {
         title: 'Standup Mood App'
       }
