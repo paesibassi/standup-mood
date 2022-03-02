@@ -5,6 +5,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import { minsSecondsSubstr, formatTimeMinSecs } from '../util';
 
+// TODO define these in config file
 const minTime = 5;
 const maxTime = 20;
 const stepTime = 1;

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import TimeForm from './timeform';
+import TimeForm from './timerange';
 import MemberList from './memberlist';
 import Buttons from './buttons';
 
