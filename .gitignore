@@ -131,3 +131,7 @@ dist
 
 # Neutrino build directory
 build
+
+# temp credential files
+credentials.json
+token.json
