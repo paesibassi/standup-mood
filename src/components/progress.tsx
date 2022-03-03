@@ -1,10 +1,16 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import ProgressBar from 'react-bootstrap/ProgressBar';
+
+type Props = {
+  elapsedPercent: number;
+  barColor: string;
+  index: number;
+  handleSelectMember: (index: number) => void;
+};
 
 function Progress({
   elapsedPercent, barColor, index, handleSelectMember,
-}) {
+}: Props): JSX.Element {
   return (
     <ProgressBar
       className="h-100"
@@ -15,12 +21,5 @@ function Progress({
     />
   );
 }
-
-Progress.propTypes = {
-  elapsedPercent: PropTypes.number.isRequired,
-  barColor: PropTypes.string.isRequired,
-  index: PropTypes.number.isRequired,
-  handleSelectMember: PropTypes.func.isRequired,
-};
 
 export default Progress;

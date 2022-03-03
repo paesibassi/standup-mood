@@ -1,9 +1,14 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Form from 'react-bootstrap/Form';
 import Stack from 'react-bootstrap/Stack';
 
-function MemberScore({ memberScore, index, handleChangeMood }) {
+type Props = {
+  memberScore: number;
+  index: number;
+  handleChangeMood: (index: number, event: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
+function MemberScore({ memberScore, index, handleChangeMood }: Props): JSX.Element {
   return (
     <Stack direction="horizontal" gap={3}>
       <Form.Range
@@ -17,11 +22,5 @@ function MemberScore({ memberScore, index, handleChangeMood }) {
     </Stack>
   );
 }
-
-MemberScore.propTypes = {
-  memberScore: PropTypes.number.isRequired,
-  index: PropTypes.number.isRequired,
-  handleChangeMood: PropTypes.func.isRequired,
-};
 
 export default MemberScore;

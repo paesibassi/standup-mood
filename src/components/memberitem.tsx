@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -8,10 +7,23 @@ import Progress from './progress';
 import MemberScore from './memberscore';
 import MemberSwitch from './memberswitch';
 
+type Props = {
+  memberName: string;
+  index: number;
+  activeMember: boolean;
+  memberScore: number;
+  memberIdx: number;
+  elapsedPercent: number;
+  barColor: string;
+  handleSwitch: (index: number) => void;
+  handleChangeMood: (index: number, event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSelectMember: (index: number) => void;
+};
+
 function MemberItem({
   memberName, index, activeMember, memberScore, memberIdx, elapsedPercent, barColor,
   handleSwitch, handleSelectMember, handleChangeMood,
-}) {
+}: Props): JSX.Element {
   return (
     <ListGroup.Item
       as="li"
@@ -49,18 +61,5 @@ function MemberItem({
     </ListGroup.Item>
   );
 }
-
-MemberItem.propTypes = {
-  memberName: PropTypes.string.isRequired,
-  index: PropTypes.number.isRequired,
-  activeMember: PropTypes.bool.isRequired,
-  memberScore: PropTypes.number.isRequired,
-  memberIdx: PropTypes.number.isRequired,
-  elapsedPercent: PropTypes.number.isRequired,
-  barColor: PropTypes.string.isRequired,
-  handleSwitch: PropTypes.func.isRequired,
-  handleChangeMood: PropTypes.func.isRequired,
-  handleSelectMember: PropTypes.func.isRequired,
-};
 
 export default MemberItem;

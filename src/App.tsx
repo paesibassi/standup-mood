@@ -16,8 +16,25 @@ const initialTotalTime = 15 * 60;
 const refreshRate = 1000; // 1 second
 const teamMembers = shuffleArray(team);
 
-class App extends React.Component {
-  constructor(props) {
+type Props = {
+};
+
+type State = {
+  totalTime: number;
+  individualTime: number;
+  running: boolean;
+  members: string[];
+  activeMembers: boolean[];
+  memberScores: number[];
+  memberIdx: number;
+  elapsedSecs: number[];
+  completedBars: boolean[];
+};
+
+class App extends React.Component<Props, State> {
+  timerID!: ReturnType<typeof setInterval>;
+
+  constructor(props: Props) {
     super(props);
     this.handleChangeRange = this.handleChangeRange.bind(this);
     this.handleStartStop = this.handleStartStop.bind(this);
@@ -25,7 +42,6 @@ class App extends React.Component {
     this.handleSwitch = this.handleSwitch.bind(this);
     this.handleChangeMood = this.handleChangeMood.bind(this);
     this.handleSelectMember = this.handleSelectMember.bind(this);
-    this.timerID = null;
     // eslint-disable-next-line react/state-in-constructor
     this.state = {
       totalTime: initialTotalTime,
@@ -44,16 +60,16 @@ class App extends React.Component {
     clearInterval(this.timerID);
   }
 
-  handleChangeRange(e) {
+  handleChangeRange(e: React.ChangeEvent<HTMLInputElement>): void {
     const { activeMembers } = this.state;
-    const totalTime = e.target.value * 60;
+    const totalTime = Number(e.target.value) * 60;
     this.setState({
       totalTime,
       individualTime: individualSeconds(totalTime, activeMembers),
     });
   }
 
-  handleSwitch(idx) {
+  handleSwitch(idx: number): void {
     const { totalTime, activeMembers } = this.state;
     activeMembers[idx] = !activeMembers[idx];
     this.setState({
@@ -62,17 +78,17 @@ class App extends React.Component {
     });
   }
 
-  handleSelectMember(idx) {
+  handleSelectMember(idx: number): void {
     this.setState({ memberIdx: idx });
   }
 
-  handleChangeMood(idx, e) {
+  handleChangeMood(idx: number, e: React.ChangeEvent<HTMLInputElement>): void {
     const { memberScores } = this.state;
     memberScores[idx] = parseFloat(e.target.value);
     this.setState({ memberScores });
   }
 
-  handleStartStop() {
+  handleStartStop(): void {
     const { running, activeMembers, memberIdx } = this.state;
     if (running) {
       clearInterval(this.timerID);
@@ -91,7 +107,7 @@ class App extends React.Component {
     this.setState({ running: !running });
   }
 
-  handleNext() {
+  handleNext(): void {
     const { activeMembers, memberIdx, completedBars } = this.state;
     completedBars[memberIdx] = true;
     const next = activeMembers.indexOf(true, memberIdx + 1);
@@ -101,7 +117,7 @@ class App extends React.Component {
     });
   }
 
-  startButtonState() {
+  startButtonState(): string {
     const {
       running, memberIdx, members, activeMembers,
     } = this.state;
@@ -115,7 +131,7 @@ class App extends React.Component {
     return 'Start';
   }
 
-  tick() {
+  tick(): void {
     const {
       individualTime, memberIdx, elapsedSecs, members,
     } = this.state;
