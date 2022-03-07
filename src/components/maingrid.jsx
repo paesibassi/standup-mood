@@ -11,6 +11,7 @@ function MainGrid({
   totalTime, numActiveMembers, individualTime, handleChangeRange, members, memberIdx,
   elapsedSecs, activeMembers, memberScores, averageMood, handleSwitch, handleChangeMood,
   handleSelectMember, startButtonState, handleStartStop, disabledNext, handleNext,
+  elapsedPercents, barColors,
 }) {
   return (
     <Container className="p-3">
@@ -39,6 +40,8 @@ function MainGrid({
             elapsedSecs={elapsedSecs}
             individualTime={individualTime}
             averageMood={averageMood}
+            elapsedPercents={elapsedPercents}
+            barColors={barColors}
             handleSwitch={handleSwitch}
             handleChangeMood={handleChangeMood}
             handleSelectMember={handleSelectMember}
@@ -77,6 +80,8 @@ MainGrid.propTypes = {
   handleStartStop: PropTypes.func.isRequired,
   disabledNext: PropTypes.bool.isRequired,
   handleNext: PropTypes.func.isRequired,
+  elapsedPercents: PropTypes.arrayOf(PropTypes.number).isRequired,
+  barColors: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 export default MainGrid;

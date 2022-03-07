@@ -6,7 +6,7 @@ import SummaryItem from './summaryitem';
 
 function MemberList({
   members, activeMembers, memberScores, memberIdx, elapsedSecs, individualTime,
-  averageMood,
+  averageMood, elapsedPercents, barColors,
   handleSwitch, handleSelectMember, handleChangeMood,
 }) {
   const ml = members.map((memberName, i) => (
@@ -17,8 +17,8 @@ function MemberList({
       activeMember={activeMembers[i]}
       memberScore={memberScores[i]}
       memberIdx={memberIdx}
-      elapsedSecs={elapsedSecs[i]}
-      individualTime={individualTime}
+      elapsedPercent={elapsedPercents[i]}
+      barColor={barColors[i]}
       handleSwitch={handleSwitch}
       handleSelectMember={handleSelectMember}
       handleChangeMood={handleChangeMood}
@@ -47,6 +47,8 @@ MemberList.propTypes = {
   elapsedSecs: PropTypes.arrayOf(PropTypes.number).isRequired,
   individualTime: PropTypes.number.isRequired,
   averageMood: PropTypes.number.isRequired,
+  elapsedPercents: PropTypes.arrayOf(PropTypes.number).isRequired,
+  barColors: PropTypes.arrayOf(PropTypes.string).isRequired,
   handleSwitch: PropTypes.func.isRequired,
   handleChangeMood: PropTypes.func.isRequired,
   handleSelectMember: PropTypes.func.isRequired,

@@ -1,7 +1,9 @@
 import { hot, setConfig } from 'react-hot-loader';
 import React from 'react';
 import './App.css';
-import { individualSeconds, shuffleArray } from './util';
+import {
+  individualSeconds, progressPerc, progressVariant, shuffleArray,
+} from './util';
 import team from './resources/team.json';
 import MainGrid from './components/maingrid';
 
@@ -30,10 +32,11 @@ class App extends React.Component {
       individualTime: 0,
       running: false,
       members: teamMembers,
-      activeMembers: Array(teamMembers.length).fill(false),
+      activeMembers: Array(teamMembers.length).fill(true), // TODO change to false
       memberScores: Array(teamMembers.length).fill(3.0),
       memberIdx: 0,
       elapsedSecs: Array(teamMembers.length).fill(0),
+      completedBars: Array(teamMembers.length).fill(false),
     };
   }
 
@@ -89,9 +92,13 @@ class App extends React.Component {
   }
 
   handleNext() {
-    const { activeMembers, memberIdx } = this.state;
+    const { activeMembers, memberIdx, completedBars } = this.state;
+    completedBars[memberIdx] = true;
     const next = activeMembers.indexOf(true, memberIdx + 1);
-    this.setState({ memberIdx: next });
+    this.setState({
+      completedBars,
+      memberIdx: next,
+    });
   }
 
   startButtonState() {
@@ -127,13 +134,16 @@ class App extends React.Component {
 
   render() {
     const {
-      totalTime, individualTime, members, activeMembers, memberScores, memberIdx, elapsedSecs,
+      totalTime, individualTime, members, activeMembers, memberScores, memberIdx,
+      elapsedSecs, completedBars,
     } = this.state;
     const numActiveMembers = activeMembers.filter(Boolean).length;
     const sumMood = memberScores.filter((_, i) => activeMembers[i]).reduce((a, b) => a + b, 0);
     const averageMood = sumMood / activeMembers.filter(Boolean).length;
     const disabledNext = (memberIdx === members.length - 1)
     || (activeMembers.filter(Boolean).length === 0);
+    const elapsedPercents = elapsedSecs.map((s) => progressPerc(s, individualTime));
+    const barColors = elapsedPercents.map((p, i) => (completedBars[i] ? 'success' : progressVariant(p)));
     return (
       <MainGrid
         totalTime={totalTime}
@@ -153,6 +163,8 @@ class App extends React.Component {
         handleStartStop={this.handleStartStop}
         disabledNext={disabledNext}
         handleNext={this.handleNext}
+        elapsedPercents={elapsedPercents}
+        barColors={barColors}
       />
     );
   }
