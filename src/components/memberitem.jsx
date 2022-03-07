@@ -9,7 +9,7 @@ import MemberScore from './memberscore';
 import MemberSwitch from './memberswitch';
 
 function MemberItem({
-  memberName, index, activeMember, memberScore, memberIdx, elapsedSecs, individualTime,
+  memberName, index, activeMember, memberScore, memberIdx, elapsedPercent, barColor,
   handleSwitch, handleSelectMember, handleChangeMood,
 }) {
   return (
@@ -31,8 +31,8 @@ function MemberItem({
           </Col>
           <Col xs={6} md={8}>
             <Progress
-              elapsedSecs={elapsedSecs}
-              individualTime={individualTime}
+              elapsedPercent={elapsedPercent}
+              barColor={barColor}
               index={index}
               handleSelectMember={handleSelectMember}
             />
@@ -56,8 +56,8 @@ MemberItem.propTypes = {
   activeMember: PropTypes.bool.isRequired,
   memberScore: PropTypes.number.isRequired,
   memberIdx: PropTypes.number.isRequired,
-  elapsedSecs: PropTypes.number.isRequired,
-  individualTime: PropTypes.number.isRequired,
+  elapsedPercent: PropTypes.number.isRequired,
+  barColor: PropTypes.string.isRequired,
   handleSwitch: PropTypes.func.isRequired,
   handleChangeMood: PropTypes.func.isRequired,
   handleSelectMember: PropTypes.func.isRequired,

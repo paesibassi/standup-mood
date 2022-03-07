@@ -15,6 +15,13 @@ export function progressPerc(elapsed, total) {
   return (total === 0) ? 0 : Math.floor((elapsed / total) * 100);
 }
 
+export function progressVariant(percent) {
+  if (percent === 100) { return 'success'; }
+  if (percent > 90) { return 'danger'; }
+  if (percent > 75) { return 'warning'; }
+  return '';
+}
+
 export function shuffleArray(arr) {
   const array = arr;
   let randomIndex;
