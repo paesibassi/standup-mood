@@ -1,6 +1,7 @@
 const typescript = require('neutrinojs-typescript');
 const airbnb = require('@neutrinojs/airbnb');
 const typescriptLint = require('neutrinojs-typescript-eslint');
+const copy = require('@neutrinojs/copy');
 const react = require('@neutrinojs/react');
 const jest = require('@neutrinojs/jest');
 
@@ -34,6 +35,9 @@ module.exports = {
           "@typescript-eslint/no-use-before-define": ["error"]
         },
       },
+    }),
+    copy({
+      patterns: ['src/resources/favicon.ico'],
     }),
     react({
       publicPath: "/",

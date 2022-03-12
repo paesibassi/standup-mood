@@ -8,7 +8,7 @@ type Props = {
 
 function StartButton({ startButtonState, startStop }: Props): JSX.Element {
   return (
-    <Button className="col-6" disabled={startButtonState === 'Select Members'} onClick={() => startStop()}>
+    <Button className="col-4" disabled={startButtonState === 'Select Members'} onClick={() => startStop()}>
       {startButtonState}
     </Button>
   );

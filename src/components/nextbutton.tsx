@@ -8,7 +8,7 @@ type Props = {
 
 function NextButton({ disabledNext, next }: Props): JSX.Element {
   return (
-    <Button className="col-6" disabled={disabledNext} onClick={() => next()}>
+    <Button className="col-4 mx-auto" disabled={disabledNext} onClick={() => next()}>
       Next
     </Button>
   );

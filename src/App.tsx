@@ -29,6 +29,9 @@ type State = {
   memberIdx: number;
   elapsedSecs: number[];
   completedBars: boolean[];
+  isAlertVisible: boolean;
+  messageHeading: string;
+  messageBody: string;
 };
 
 class App extends React.Component<Props, State> {
@@ -42,6 +45,8 @@ class App extends React.Component<Props, State> {
     this.handleSwitch = this.handleSwitch.bind(this);
     this.handleChangeMood = this.handleChangeMood.bind(this);
     this.handleSelectMember = this.handleSelectMember.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleCloseAlert = this.handleCloseAlert.bind(this);
     // eslint-disable-next-line react/state-in-constructor
     this.state = {
       totalTime: initialTotalTime,
@@ -53,6 +58,9 @@ class App extends React.Component<Props, State> {
       memberIdx: 0,
       elapsedSecs: Array(teamMembers.length).fill(0),
       completedBars: Array(teamMembers.length).fill(false),
+      isAlertVisible: false,
+      messageHeading: '',
+      messageBody: '',
     };
   }
 
@@ -111,9 +119,60 @@ class App extends React.Component<Props, State> {
     const { activeMembers, memberIdx, completedBars } = this.state;
     completedBars[memberIdx] = true;
     const next = activeMembers.indexOf(true, memberIdx + 1);
+    if (next !== -1) {
+      this.setState({
+        completedBars,
+        memberIdx: next,
+      });
+    }
+  }
+
+  async handleSubmit() {
+    const { members, activeMembers, memberScores } = this.state;
+    const endpoint = '/api/moods';
+    const moodScores = members.reduce((ms: {[key: string]: number;}, member: string, i: number) => {
+      if (activeMembers[i]) {
+        ms[member] = memberScores[i]; // eslint-disable-line no-param-reassign
+      }
+      return ms;
+    }, {});
+    try {
+      const response = await fetch(endpoint,
+        {
+          method: 'post',
+          // mode: 'same-origin', // TODO should be same-origin when running in production
+          body: JSON.stringify({
+            date: new Date().toISOString(), // current UTC datetime
+            team: 'One Client Core',
+            moods: moodScores,
+          }),
+          headers: {
+            'content-type': 'application/json',
+          },
+        });
+      const data = await response.json();
+      if (!response.ok) {
+        this.showAlertMessage('Error', `Something went wrong, an error occurred when posting the moods: ${response.statusText}`);
+      } else {
+        this.showAlertMessage('Success!', `Stored ${data.moods} mood scores for today`);
+      }
+    } catch (error) {
+        this.showAlertMessage('Error', `Something went wrong, an error occurred when posting the moods: ${error}`);
+    }
+  }
+
+  handleCloseAlert() {
+    const { isAlertVisible } = this.state;
     this.setState({
-      completedBars,
-      memberIdx: next,
+      isAlertVisible: !isAlertVisible,
+    });
+  }
+
+  showAlertMessage(messageHeading: string, messageBody: string): void {
+    this.setState({
+      isAlertVisible: true,
+      messageHeading,
+      messageBody,
     });
   }
 
@@ -124,6 +183,7 @@ class App extends React.Component<Props, State> {
     if (running) {
       return 'Stop';
     } if (memberIdx === members.length - 1) {
+      // TODO change this logic so it's only complete when all active have spoken
       return 'Reset';
     } if (activeMembers.filter(Boolean).length === 0) {
       return 'Select Members';
@@ -151,7 +211,7 @@ class App extends React.Component<Props, State> {
   render() {
     const {
       totalTime, individualTime, members, activeMembers, memberScores, memberIdx,
-      elapsedSecs, completedBars,
+      elapsedSecs, completedBars, isAlertVisible, messageHeading, messageBody,
     } = this.state;
     const numActiveMembers = activeMembers.filter(Boolean).length;
     const sumMood = memberScores.filter((_, i) => activeMembers[i]).reduce((a, b) => a + b, 0);
@@ -181,6 +241,11 @@ class App extends React.Component<Props, State> {
         handleNext={this.handleNext}
         elapsedPercents={elapsedPercents}
         barColors={barColors}
+        handleSubmit={this.handleSubmit}
+        isAlertVisible={isAlertVisible}
+        messageHeading={messageHeading}
+        messageBody={messageBody}
+        handleCloseAlert={this.handleCloseAlert}
       />
     );
   }

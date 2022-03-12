@@ -5,6 +5,7 @@ import Row from 'react-bootstrap/Row';
 import TimeForm from './timerange';
 import MemberList from './memberlist';
 import Buttons from './buttons';
+import AlertMessage from './alert';
 
 type Props = {
   totalTime: number;
@@ -26,13 +27,19 @@ type Props = {
   handleNext: () => void;
   elapsedPercents: number[];
   barColors: string[];
+  handleSubmit: () => void;
+  isAlertVisible: boolean;
+  messageHeading: string;
+  messageBody: string;
+  handleCloseAlert: () => void;
 };
 
 function MainGrid({
   totalTime, numActiveMembers, individualTime, handleChangeRange, members, memberIdx,
   elapsedSecs, activeMembers, memberScores, averageMood, handleSwitch, handleChangeMood,
   handleSelectMember, startButtonState, handleStartStop, disabledNext, handleNext,
-  elapsedPercents, barColors,
+  elapsedPercents, barColors, handleSubmit, isAlertVisible, messageHeading, messageBody,
+  handleCloseAlert,
 }: Props): JSX.Element {
   return (
     <Container className="p-3">
@@ -71,11 +78,18 @@ function MainGrid({
       </Row>
       <Row>
         <Col>
+          <AlertMessage
+            isAlertVisible={isAlertVisible}
+            messageHeading={messageHeading}
+            messageBody={messageBody}
+            handleCloseAlert={handleCloseAlert}
+          />
           <Buttons
             startButtonState={startButtonState}
             handleStartStop={handleStartStop}
             disabledNext={disabledNext}
             handleNext={handleNext}
+            handleSubmit={handleSubmit}
           />
         </Col>
       </Row>
