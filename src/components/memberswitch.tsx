@@ -1,9 +1,13 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Form from 'react-bootstrap/Form';
 import Stack from 'react-bootstrap/Stack';
 
-function MemberSwitch({ memberName, activeMember }) {
+type Props = {
+  memberName: string;
+  activeMember: boolean;
+};
+
+function MemberSwitch({ memberName, activeMember }: Props): JSX.Element {
   return (
     <Stack direction="horizontal" gap={2}>
       <Form>
@@ -19,10 +23,5 @@ function MemberSwitch({ memberName, activeMember }) {
     </Stack>
   );
 }
-
-MemberSwitch.propTypes = {
-  memberName: PropTypes.string.isRequired,
-  activeMember: PropTypes.bool.isRequired,
-};
 
 export default MemberSwitch;

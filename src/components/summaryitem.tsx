@@ -1,14 +1,21 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import CurrentSpeaker from './currentspeaker';
 
+type Props = {
+  members: string[];
+  memberIdx: number;
+  elapsedSecs: number[];
+  individualTime: number;
+  averageMood: number;
+};
+
 function SummaryItem({
   members, memberIdx, elapsedSecs, individualTime, averageMood,
-}) {
+}: Props): JSX.Element {
   return (
     <ListGroup.Item as="li">
       <Container fluid className="px-0">
@@ -32,13 +39,5 @@ function SummaryItem({
     </ListGroup.Item>
   );
 }
-
-SummaryItem.propTypes = {
-  members: PropTypes.arrayOf(PropTypes.string).isRequired,
-  memberIdx: PropTypes.number.isRequired,
-  elapsedSecs: PropTypes.arrayOf(PropTypes.number).isRequired,
-  individualTime: PropTypes.number.isRequired,
-  averageMood: PropTypes.number.isRequired,
-};
 
 export default SummaryItem;

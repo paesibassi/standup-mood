@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -7,12 +6,34 @@ import TimeForm from './timerange';
 import MemberList from './memberlist';
 import Buttons from './buttons';
 
+type Props = {
+  totalTime: number;
+  numActiveMembers: number;
+  members: string[];
+  activeMembers: boolean[];
+  memberScores: number[];
+  memberIdx: number;
+  elapsedSecs: number[];
+  individualTime: number;
+  averageMood: number;
+  handleChangeRange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSwitch: (index: number) => void;
+  handleChangeMood: (index: number, event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSelectMember: (index: number) => void;
+  startButtonState: string;
+  handleStartStop: () => void;
+  disabledNext: boolean;
+  handleNext: () => void;
+  elapsedPercents: number[];
+  barColors: string[];
+};
+
 function MainGrid({
   totalTime, numActiveMembers, individualTime, handleChangeRange, members, memberIdx,
   elapsedSecs, activeMembers, memberScores, averageMood, handleSwitch, handleChangeMood,
   handleSelectMember, startButtonState, handleStartStop, disabledNext, handleNext,
   elapsedPercents, barColors,
-}) {
+}: Props): JSX.Element {
   return (
     <Container className="p-3">
       <Row>
@@ -61,27 +82,5 @@ function MainGrid({
     </Container>
   );
 }
-
-MainGrid.propTypes = {
-  totalTime: PropTypes.number.isRequired,
-  numActiveMembers: PropTypes.number.isRequired,
-  members: PropTypes.arrayOf(PropTypes.string).isRequired,
-  activeMembers: PropTypes.arrayOf(PropTypes.bool).isRequired,
-  memberScores: PropTypes.arrayOf(PropTypes.number).isRequired,
-  memberIdx: PropTypes.number.isRequired,
-  elapsedSecs: PropTypes.arrayOf(PropTypes.number).isRequired,
-  individualTime: PropTypes.number.isRequired,
-  averageMood: PropTypes.number.isRequired,
-  handleChangeRange: PropTypes.func.isRequired,
-  handleSwitch: PropTypes.func.isRequired,
-  handleChangeMood: PropTypes.func.isRequired,
-  handleSelectMember: PropTypes.func.isRequired,
-  startButtonState: PropTypes.string.isRequired,
-  handleStartStop: PropTypes.func.isRequired,
-  disabledNext: PropTypes.bool.isRequired,
-  handleNext: PropTypes.func.isRequired,
-  elapsedPercents: PropTypes.arrayOf(PropTypes.number).isRequired,
-  barColors: PropTypes.arrayOf(PropTypes.string).isRequired,
-};
 
 export default MainGrid;

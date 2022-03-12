@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -10,9 +9,16 @@ const minTime = 5;
 const maxTime = 20;
 const stepTime = 1;
 
+type Props = {
+  totalTime: number;
+  numActiveMembers: number;
+  individualTime: number;
+  handleChangeRange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
 function TimeForm({
   totalTime, individualTime, numActiveMembers, handleChangeRange,
-}) {
+}: Props): JSX.Element {
   const timeLabel = `Standup time: ${formatTimeMinSecs(totalTime, minsSecondsSubstr)}`;
   const timeText = `${formatTimeMinSecs(individualTime, minsSecondsSubstr)} for ${numActiveMembers} joiners`;
   return (
@@ -35,12 +41,5 @@ function TimeForm({
     </Form>
   );
 }
-
-TimeForm.propTypes = {
-  totalTime: PropTypes.number.isRequired,
-  numActiveMembers: PropTypes.number.isRequired,
-  individualTime: PropTypes.number.isRequired,
-  handleChangeRange: PropTypes.func.isRequired,
-};
 
 export default TimeForm;
