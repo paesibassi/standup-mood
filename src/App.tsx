@@ -48,7 +48,7 @@ class App extends React.Component<Props, State> {
       individualTime: 0,
       running: false,
       members: teamMembers,
-      activeMembers: Array(teamMembers.length).fill(true), // TODO change to false
+      activeMembers: Array(teamMembers.length).fill(true),
       memberScores: Array(teamMembers.length).fill(3.0),
       memberIdx: 0,
       elapsedSecs: Array(teamMembers.length).fill(0),

@@ -1,0 +1,6 @@
+runtime: go116
+
+env_variables:
+  GIN_MODE: "release"
+  # https://docs.google.com/spreadsheets/d/19COEqqwmIsMWNJspztK499MUqhkBof_dmAoXvvOkYZg
+  SPREADSHEET_ID: "19COEqqwmIsMWNJspztK499MUqhkBof_dmAoXvvOkYZg"
