@@ -140,10 +140,10 @@ class App extends React.Component<Props, State> {
       const response = await fetch(endpoint,
         {
           method: 'post',
-          // mode: 'same-origin', // TODO should be same-origin when running in production
+          mode: 'same-origin',
           body: JSON.stringify({
             date: new Date().toISOString(), // current UTC datetime
-            team: 'One Client Core',
+            team: 'OneClientCore', // TODO make the team a param
             moods: moodScores,
           }),
           headers: {
