@@ -32,6 +32,9 @@ type Props = {
   messageHeading: string;
   messageBody: string;
   handleCloseAlert: () => void;
+  teams: string[];
+  selectedTeam: string;
+  handleChangeTeam: (eventKey: string | null, event: React.SyntheticEvent<unknown, Event>) => void;
 };
 
 function MainGrid({
@@ -39,7 +42,7 @@ function MainGrid({
   elapsedSecs, activeMembers, memberScores, averageMood, handleSwitch, handleChangeMood,
   handleSelectMember, startButtonState, handleStartStop, disabledNext, handleNext,
   elapsedPercents, barColors, handleSubmit, isAlertVisible, messageHeading, messageBody,
-  handleCloseAlert,
+  handleCloseAlert, teams, selectedTeam, handleChangeTeam,
 }: Props): JSX.Element {
   return (
     <Container className="p-3">
@@ -70,6 +73,9 @@ function MainGrid({
             averageMood={averageMood}
             elapsedPercents={elapsedPercents}
             barColors={barColors}
+            teams={teams}
+            selectedTeam={selectedTeam}
+            handleChangeTeam={handleChangeTeam}
             handleSwitch={handleSwitch}
             handleChangeMood={handleChangeMood}
             handleSelectMember={handleSelectMember}
