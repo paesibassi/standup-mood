@@ -16,10 +16,10 @@ export function progressPerc(elapsed: number, total: number): number {
   return (total === 0) ? 0 : Math.floor((elapsed / total) * 100);
 }
 
-export function progressVariant(percent: number): string {
-  if (percent === 100) { return 'success'; }
-  if (percent > 90) { return 'danger'; }
-  if (percent > 75) { return 'warning'; }
+export function progressVariant(percent: number, completed: boolean): string {
+  if (percent <= 100 && completed === true) return 'success';
+  if (percent > 90) return 'danger';
+  if (percent > 75) return 'warning';
   return '';
 }
 

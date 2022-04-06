@@ -215,19 +215,14 @@ class App extends React.Component<Props, State> {
 
   tick(): void {
     const {
-      individualTime, memberIdx, elapsedSecs, members,
+      memberIdx, elapsedSecs, members,
     } = this.state;
-    if (elapsedSecs[memberIdx] >= individualTime) {
-      if (memberIdx === members.length - 1) {
-        this.setState({ running: false });
-        clearInterval(this.timerID);
-      } else {
-        this.handleNext();
-      }
-    } else {
-      elapsedSecs[memberIdx] += increment;
-      this.setState({ elapsedSecs });
+    if (memberIdx === members.length - 1) {
+      this.setState({ running: false });
+      clearInterval(this.timerID);
     }
+    elapsedSecs[memberIdx] += increment;
+    this.setState({ elapsedSecs });
   }
 
   render() {
@@ -242,7 +237,7 @@ class App extends React.Component<Props, State> {
     const disabledNext = (memberIdx === members.length - 1)
       || (activeMembers.filter(Boolean).length === 0);
     const elapsedPercents = elapsedSecs.map((s) => progressPerc(s, individualTime));
-    const barColors = elapsedPercents.map((p, i) => (completedBars[i] ? 'success' : progressVariant(p)));
+    const barColors = elapsedPercents.map((p, i) => progressVariant(p, completedBars[i]));
     return (
       <MainGrid
         totalTime={totalTime}
