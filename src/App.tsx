@@ -4,7 +4,7 @@ import './App.css';
 import {
   individualSeconds, progressPerc, progressVariant, shuffleArray,
 } from './util';
-import team from './resources/team.json';
+import allTeams from './resources/teams.json';
 import MainGrid from './components/maingrid';
 
 setConfig({
@@ -14,7 +14,6 @@ setConfig({
 const increment = 1;
 const initialTotalTime = 15 * 60;
 const refreshRate = 1000; // 1 second
-const teamMembers = shuffleArray(team);
 
 type Props = {
 };
@@ -23,6 +22,8 @@ type State = {
   totalTime: number;
   individualTime: number;
   running: boolean;
+  teams: string[];
+  selectedTeam: string;
   members: string[];
   activeMembers: boolean[];
   memberScores: number[];
@@ -33,6 +34,28 @@ type State = {
   messageHeading: string;
   messageBody: string;
 };
+
+function initialState(teamName: string): State {
+  const teams = Object.keys(allTeams);
+  const team: string[] = (allTeams as { [key: string]: string[]; })[teamName];
+  const teamMembers = shuffleArray(team);
+  return {
+      totalTime: initialTotalTime,
+      individualTime: 0,
+      running: false,
+      teams,
+      selectedTeam: teamName,
+      members: teamMembers,
+      activeMembers: Array(teamMembers.length).fill(true),
+      memberScores: Array(teamMembers.length).fill(3.0),
+      memberIdx: 0,
+      elapsedSecs: Array(teamMembers.length).fill(0),
+      completedBars: Array(teamMembers.length).fill(false),
+      isAlertVisible: false,
+      messageHeading: '',
+      messageBody: '',
+  };
+}
 
 class App extends React.Component<Props, State> {
   timerID!: ReturnType<typeof setInterval>;
@@ -47,21 +70,9 @@ class App extends React.Component<Props, State> {
     this.handleSelectMember = this.handleSelectMember.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleCloseAlert = this.handleCloseAlert.bind(this);
+    this.handleChangeTeam = this.handleChangeTeam.bind(this);
     // eslint-disable-next-line react/state-in-constructor
-    this.state = {
-      totalTime: initialTotalTime,
-      individualTime: 0,
-      running: false,
-      members: teamMembers,
-      activeMembers: Array(teamMembers.length).fill(true),
-      memberScores: Array(teamMembers.length).fill(3.0),
-      memberIdx: 0,
-      elapsedSecs: Array(teamMembers.length).fill(0),
-      completedBars: Array(teamMembers.length).fill(false),
-      isAlertVisible: false,
-      messageHeading: '',
-      messageBody: '',
-    };
+    this.state = initialState('OneClientCore');
   }
 
   componentWillUnmount() {
@@ -75,6 +86,13 @@ class App extends React.Component<Props, State> {
       totalTime,
       individualTime: individualSeconds(totalTime, activeMembers),
     });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  handleChangeTeam(eventKey: string | null, event: React.SyntheticEvent<unknown, Event>): void {
+    if (eventKey) {
+      this.setState(initialState(eventKey));
+    }
   }
 
   handleSwitch(idx: number): void {
@@ -97,13 +115,15 @@ class App extends React.Component<Props, State> {
   }
 
   handleStartStop(): void {
-    const { running, activeMembers, memberIdx } = this.state;
+    const {
+      running, members, activeMembers, memberIdx,
+    } = this.state;
     if (running) {
       clearInterval(this.timerID);
     } else {
       if (this.startButtonState() === 'Reset') {
         this.setState({
-          elapsedSecs: Array(teamMembers.length).fill(0),
+          elapsedSecs: Array(members.length).fill(0),
           memberIdx: 0,
         });
       }
@@ -128,11 +148,13 @@ class App extends React.Component<Props, State> {
   }
 
   async handleSubmit() {
-    const { members, activeMembers, memberScores } = this.state;
+    const {
+      selectedTeam, members, activeMembers, memberScores,
+    } = this.state;
     const endpoint = '/api/moods';
-    const moodScores = members.reduce((ms: {[key: string]: number;}, member: string, i: number) => {
+    const moodScores = members.reduce((ms: { [key: string]: number; }, name: string, i: number) => {
       if (activeMembers[i]) {
-        ms[member] = memberScores[i]; // eslint-disable-line no-param-reassign
+        ms[name] = memberScores[i]; // eslint-disable-line no-param-reassign
       }
       return ms;
     }, {});
@@ -143,7 +165,7 @@ class App extends React.Component<Props, State> {
           mode: 'same-origin',
           body: JSON.stringify({
             date: new Date().toISOString(), // current UTC datetime
-            team: 'OneClientCore', // TODO make the team a param
+            team: selectedTeam,
             moods: moodScores,
           }),
           headers: {
@@ -157,7 +179,7 @@ class App extends React.Component<Props, State> {
         this.showAlertMessage('Success!', `Stored ${data.moods} mood scores for today`);
       }
     } catch (error) {
-        this.showAlertMessage('Error', `Something went wrong, an error occurred when posting the moods: ${error}`);
+      this.showAlertMessage('Error', `Something went wrong, an error occurred when posting the moods: ${error}`);
     }
   }
 
@@ -210,14 +232,15 @@ class App extends React.Component<Props, State> {
 
   render() {
     const {
-      totalTime, individualTime, members, activeMembers, memberScores, memberIdx,
-      elapsedSecs, completedBars, isAlertVisible, messageHeading, messageBody,
+      totalTime, individualTime, teams, selectedTeam,
+      members, activeMembers, memberScores, memberIdx, elapsedSecs, completedBars,
+      isAlertVisible, messageHeading, messageBody,
     } = this.state;
     const numActiveMembers = activeMembers.filter(Boolean).length;
     const sumMood = memberScores.filter((_, i) => activeMembers[i]).reduce((a, b) => a + b, 0);
     const averageMood = sumMood / activeMembers.filter(Boolean).length;
     const disabledNext = (memberIdx === members.length - 1)
-    || (activeMembers.filter(Boolean).length === 0);
+      || (activeMembers.filter(Boolean).length === 0);
     const elapsedPercents = elapsedSecs.map((s) => progressPerc(s, individualTime));
     const barColors = elapsedPercents.map((p, i) => (completedBars[i] ? 'success' : progressVariant(p)));
     return (
@@ -246,6 +269,9 @@ class App extends React.Component<Props, State> {
         messageHeading={messageHeading}
         messageBody={messageBody}
         handleCloseAlert={this.handleCloseAlert}
+        teams={teams}
+        selectedTeam={selectedTeam}
+        handleChangeTeam={this.handleChangeTeam}
       />
     );
   }
