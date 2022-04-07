@@ -13,11 +13,16 @@ function CurrentSpeaker({
   members, memberIdx, elapsedSecs, individualTime,
 }: Props): JSX.Element {
   const currentSpeaker = `${members[memberIdx]} `;
-  const currentTimeRemaining = `${formatTimeMinSecs(individualTime - elapsedSecs[memberIdx])}`;
+  const secondsRemaining = individualTime - elapsedSecs[memberIdx];
+  const currentTimeRemaining = (secondsRemaining > 0)
+    ? `${formatTimeMinSecs(secondsRemaining)}`
+    : `-${formatTimeMinSecs(-secondsRemaining)}`;
   return (
     <h4 className="text-center text-primary">
       {currentSpeaker}
-      <Badge pill>{currentTimeRemaining}</Badge>
+      <Badge pill bg={(secondsRemaining >= 0) ? 'primary' : 'danger'}>
+        {currentTimeRemaining}
+      </Badge>
     </h4>
 
   );
