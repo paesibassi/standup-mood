@@ -1,24 +1,20 @@
-import React from 'react';
+import React, { FC } from 'react';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import { minsSecondsSubstr, formatTimeMinSecs } from '../util';
+import useGlobalContext from '../context/context';
 
 // TODO define these in config file
 const minTime = 5;
 const maxTime = 20;
 const stepTime = 1;
 
-type Props = {
-  totalTime: number;
-  numActiveMembers: number;
-  individualTime: number;
-  handleChangeRange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-};
+const TimeRange: FC = () => {
+  const {
+    totalTime, individualTime, numActiveMembers, handleChangeTime,
+  } = useGlobalContext();
 
-function TimeForm({
-  totalTime, individualTime, numActiveMembers, handleChangeRange,
-}: Props): JSX.Element {
   const timeLabel = `Standup time: ${formatTimeMinSecs(totalTime, minsSecondsSubstr)}`;
   const timeText = `${formatTimeMinSecs(individualTime, minsSecondsSubstr)} for ${numActiveMembers} joiners`;
   return (
@@ -31,7 +27,7 @@ function TimeForm({
             max={maxTime}
             step={stepTime}
             value={totalTime / 60}
-            onChange={(e) => handleChangeRange(e)}
+            onChange={(e) => handleChangeTime?.(e)}
           />
         </Col>
         <Col>
@@ -40,6 +36,6 @@ function TimeForm({
       </Form.Group>
     </Form>
   );
-}
+};
 
-export default TimeForm;
+export default TimeRange;

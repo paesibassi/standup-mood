@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -6,24 +6,22 @@ import Col from 'react-bootstrap/Col';
 import Progress from './progress';
 import MemberScore from './memberscore';
 import MemberSwitch from './memberswitch';
+import useGlobalContext from '../context/context';
 
 type Props = {
   memberName: string;
   index: number;
   activeMember: boolean;
-  memberScore: number;
   memberIdx: number;
-  elapsedPercent: number;
-  barColor: string;
-  handleSwitch: (index: number) => void;
-  handleChangeMood: (index: number, event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSelectMember: (index: number) => void;
+  elapsedPercent?: number;
+  barColor?: string;
 };
 
-function MemberItem({
-  memberName, index, activeMember, memberScore, memberIdx, elapsedPercent, barColor,
-  handleSwitch, handleSelectMember, handleChangeMood,
-}: Props): JSX.Element {
+const MemberItem: FC<Props> = ({
+    memberName, index, activeMember, memberIdx, elapsedPercent, barColor,
+  }) => {
+  const { handleSwitch } = useGlobalContext();
+
   return (
     <ListGroup.Item
       as="li"
@@ -34,7 +32,7 @@ function MemberItem({
       <Container fluid className="px-0">
         <Row>
           <Col xs={2}>
-            <div onClick={() => handleSwitch(index)} role="button" tabIndex={0} onKeyPress={() => handleSwitch(index)}>
+            <div onClick={() => handleSwitch?.(index)} role="button" tabIndex={0} onKeyPress={() => handleSwitch?.(index)}>
               <MemberSwitch
                 memberName={memberName}
                 activeMember={activeMember}
@@ -46,20 +44,15 @@ function MemberItem({
               elapsedPercent={elapsedPercent}
               barColor={barColor}
               index={index}
-              handleSelectMember={handleSelectMember}
             />
           </Col>
           <Col>
-            <MemberScore
-              memberScore={memberScore}
-              index={index}
-              handleChangeMood={handleChangeMood}
-            />
+            <MemberScore index={index} />
           </Col>
         </Row>
       </Container>
     </ListGroup.Item>
   );
-}
+};
 
 export default MemberItem;
