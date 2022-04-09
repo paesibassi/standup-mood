@@ -7,6 +7,7 @@ import Progress from './progress';
 import MemberScore from './memberscore';
 import MemberSwitch from './memberswitch';
 import useGlobalContext from '../context/context';
+import MoodHistory from './moodhist';
 
 type Props = {
   memberName: string;
@@ -31,6 +32,9 @@ const MemberItem: FC<Props> = ({
     >
       <Container fluid className="px-0">
         <Row>
+          <Col xs={1}>
+            <MoodHistory memberName={memberName} />
+          </Col>
           <Col xs={2}>
             <div onClick={() => handleSwitch?.(index)} role="button" tabIndex={0} onKeyPress={() => handleSwitch?.(index)}>
               <MemberSwitch
