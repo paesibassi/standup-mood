@@ -2,6 +2,7 @@ import React, {
  createContext, FC, ReactNode, useCallback, useContext, useEffect, useState,
 } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
 import {
   getInitialState, initializeTeam, startButtonValues, State,
  } from './state';
@@ -11,6 +12,17 @@ import { DateValue } from '../components/visualization/sparkline';
 const initialState = getInitialState();
 const AppContext = createContext(initialState);
 const apiRoot = process.env.NODE_ENV === 'development' ? 'http://localhost:8282' : '';
+
+const queryClient = new QueryClient();
+
+const fetchTeams = () => {
+  const { isLoading, error, data } = useQuery('teams', () => (
+    fetch('/api/teams', { method: 'get', mode: 'same-origin' }).then((res) => res.json())
+  ));
+  if (isLoading) return 'Loading teams';
+  if (error) return `An error has occurred: ${error}`;
+  return data;
+};
 
 const increment = 1;
 const refreshRate = 1000; // 1 second
@@ -293,30 +305,32 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
 
   return (
     <React.StrictMode>
-      <AppContext.Provider value={{
-        ...state,
-        setState,
-        updateState,
-        numActiveMembers,
-        barColors,
-        disabledNext,
-        elapsedPercents,
-        averageMood,
-        startButtonState: startButtonState(),
-        showAlertMessage,
-        handleChangeMood,
-        handleChangeTeam,
-        handleChangeTime,
-        handleCloseAlert,
-        handleNext,
-        handleSelectMember,
-        handleStartStop,
-        handleSubmit,
-        handleSwitch,
-      }}
-      >
-        { children }
-      </AppContext.Provider>
+      <QueryClientProvider client={queryClient}>
+        <AppContext.Provider value={{
+          ...state,
+          setState,
+          updateState,
+          numActiveMembers,
+          barColors,
+          disabledNext,
+          elapsedPercents,
+          averageMood,
+          startButtonState: startButtonState(),
+          showAlertMessage,
+          handleChangeMood,
+          handleChangeTeam,
+          handleChangeTime,
+          handleCloseAlert,
+          handleNext,
+          handleSelectMember,
+          handleStartStop,
+          handleSubmit,
+          handleSwitch,
+        }}
+        >
+          { children }
+        </AppContext.Provider>
+      </QueryClientProvider>
     </React.StrictMode>
   );
 };

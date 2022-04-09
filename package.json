@@ -25,6 +25,7 @@
     "react-bootstrap": "^2.1.2",
     "react-dom": "^16.14.0",
     "react-hot-loader": "^4.13.0",
+    "react-query": "^3.34.19",
     "react-router-dom": "^6.3.0"
   },
   "devDependencies": {
