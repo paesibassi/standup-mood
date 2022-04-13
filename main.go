@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -13,8 +15,12 @@ import (
 	"golang.org/x/oauth2"
 )
 
+var getNewTokenFlow *bool = flag.Bool("t", false, "Retrieve a new token from Google Sheets")
+
 func main() {
-	err := setupSpreadsheetsService()
+	flag.Parse()
+
+	err := setupSpreadsheetsService(*getNewTokenFlow)
 	if err != nil {
 		log.Fatalf("could not complete setup: %v\n", err)
 	}
@@ -30,7 +36,7 @@ func main() {
 	r.Run(":" + port)
 }
 
-func setupSpreadsheetsService() error {
+func setupSpreadsheetsService(getNewTokenFlow bool) error {
 	creds, err := secrets.SecretFromGCloud("app-credentials")
 	if err != nil {
 		return fmt.Errorf("unable to get app credentials: %v", err)
@@ -45,10 +51,14 @@ func setupSpreadsheetsService() error {
 	}
 
 	var token *oauth2.Token
-	if tokenBytes == nil {
+	if getNewTokenFlow || tokenBytes == nil {
 		token, err = oauth.GetTokenFromWeb(config) // this would only work locally
 		if err != nil {
 			return fmt.Errorf("unable to get token from web oauth flow: %v", err)
+		}
+		tokenBytes, err = json.Marshal(token)
+		if err != nil {
+			return fmt.Errorf("unable to marshal token to bytes array: %v", err)
 		}
 		secrets.AddSecretVersion("sheets-token", tokenBytes)
 	} else {
