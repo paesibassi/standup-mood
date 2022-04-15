@@ -102,24 +102,42 @@ func WriteMoodScoresToSpreadsheet(spreadsheetId string, sheet string, members []
 	return nil
 }
 
-type MoodScores = map[string][]NullableFloat
+type Mood = struct {
+	Date time.Time
+	Mood NullableFloat
+}
 
-func MoodScoresFromSpreadsheet(spreadsheetId string, sheet string) (*MoodScores, error) {
+type MoodHistory = map[string][]Mood
+
+func MoodScoresFromSpreadsheet(spreadsheetId string, sheet string) (*MoodHistory, error) {
 	readRange := fmt.Sprintf("%s!A2:Z", sheet)
 	resp, err := SS.Spreadsheets.Values.Get(spreadsheetId, readRange).Do()
 	if err != nil {
 		return nil, fmt.Errorf("unable to retrieve data from sheet: %v", err)
 	}
-	moodScores := make(MoodScores)
 	if len(resp.Values) == 0 {
 		return nil, errors.New("no data found")
 	}
+
 	// the first row should contain the name of team memberNames
 	memberNames := membersNamesFromRange(resp)
+	moodScores := make(MoodHistory, len(memberNames))
 	// subsequent rows should contain the mood scores as floats, or null values for missing scores
 	for _, row := range resp.Values[1:] {
-		// skip the first value (date column)
-		for i, val := range row[1:] {
+		// first column contains the date value
+		strVal, ok := row[0].(string)
+		if !ok {
+			log.Println("Wrong data type read")
+			continue
+		}
+		date, err := time.Parse("1/2/2006", strVal)
+		if err != nil {
+			log.Printf("unable to parse date %v", err)
+			continue
+		}
+
+		// other column contain either a mood score, or missing values
+		for memberIdx, val := range row[1:] {
 			strVal, ok := val.(string)
 			if !ok {
 				log.Println("Wrong data type read")
@@ -136,7 +154,7 @@ func MoodScoresFromSpreadsheet(spreadsheetId string, sheet string) (*MoodScores,
 				}
 				mood = NewNullableFloat(v, false)
 			}
-			moodScores[memberNames[i]] = append(moodScores[memberNames[i]], mood)
+			moodScores[memberNames[memberIdx]] = append(moodScores[memberNames[memberIdx]], Mood{date, mood})
 		}
 	}
 	return &moodScores, nil

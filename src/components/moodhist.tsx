@@ -1,37 +1,21 @@
-import * as React from "react";
-import { range } from 'd3';
-import { DateTime } from 'luxon';
-import Sparkline from './visualization/sparkline';
-import { DateValue } from './visualization/types';
+import React, { FC } from 'react';
+import Sparkline, { DateValue } from './visualization/sparkline';
 
-// can be removed when api is implemented
-const genData = (): DateValue[] => {
-    const data: DateValue[] = range(20, 1, -1).map((n) => {
-        const date = DateTime.now().minus({ days: n }).toISODate();
-        const value = Math.ceil(Math.random() * 10) / 2;
-
-        return { date, value };
-    });
-
-    return data;
+type Props = {
+    memberHistory?: DateValue[];
 };
 
-const MoodHistory = ({ memberName }: { memberName: string }) => {
-    const [data, setData] = React.useState<DateValue[]>([]);
+const MoodHistory: FC<Props> = ({ memberHistory }: Props) => {
+  // TODO replace with something implemented from backend.
+    const historyLength = 90;
+    const minDate = new Date(new Date().setDate(new Date().getDate() - historyLength))
+      .toISOString()
+      .substring(0, 10);
 
-    // replace with something implemented from backend.
-    const minDate = DateTime.now().minus({ days: 20 }).toISODate();
-
-    React.useEffect(() => {
-        // when endpoint is fixed.
-        //  fetch(url).then(r => r.json()).then(d => setData(d));
-        setData(genData());
-    }, []);
-
-    if (data === null || data === undefined) return null;
+    if (memberHistory === undefined) return null;
 
     return (
-      <Sparkline minDate={minDate} width={70} height={20} data={data} />
+      <Sparkline minDate={minDate} width={80} height={20} data={memberHistory} />
     );
 };
 
