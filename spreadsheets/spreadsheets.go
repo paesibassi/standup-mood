@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"net/http"
 	"strconv"
 	"time"
 
@@ -15,8 +14,8 @@ import (
 
 var SS *sheets.Service
 
-func NewService(client *http.Client) (*sheets.Service, error) {
-	return sheets.NewService(context.Background(), option.WithHTTPClient(client))
+func NewService(creds []byte) (*sheets.Service, error) {
+	return sheets.NewService(context.Background(), option.WithCredentialsJSON(creds))
 }
 
 type NullableFloat struct {
