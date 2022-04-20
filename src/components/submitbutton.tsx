@@ -1,15 +1,13 @@
 import React, { FC } from 'react';
 import Button from 'react-bootstrap/Button';
+import useGlobalContext from '../context/context';
 
-type Props = {
-  startButtonState: string;
-  handleSubmit: () => void;
-};
-
-const SubmitButton: FC<Props> = ({ startButtonState, handleSubmit }) => {
+const SubmitButton: FC = () => {
   const submittable = ['Select Members', 'Stop'];
+  const { startButtonState, handleSubmit } = useGlobalContext();
+
   return (
-    <Button className="col-3" disabled={submittable.includes(startButtonState)} onClick={() => handleSubmit()}>
+    <Button className="col-3" disabled={startButtonState ? submittable.includes(startButtonState) : false} onClick={() => handleSubmit?.()}>
       Submit moods
     </Button>
   );

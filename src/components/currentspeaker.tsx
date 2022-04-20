@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import { formatTimeMinSecs } from '../util';
 
@@ -9,9 +9,9 @@ type Props = {
   individualTime: number;
 };
 
-function CurrentSpeaker({
+const CurrentSpeaker: FC<Props> = ({
   members, memberIdx, elapsedSecs, individualTime,
-}: Props): JSX.Element {
+}: Props) => {
   const currentSpeaker = `${members[memberIdx]} `;
   const secondsRemaining = individualTime - elapsedSecs[memberIdx];
   const currentTimeRemaining = (secondsRemaining > 0)
@@ -26,6 +26,6 @@ function CurrentSpeaker({
     </h4>
 
   );
-}
+};
 
 export default CurrentSpeaker;

@@ -1,22 +1,20 @@
 import React, { FC } from 'react';
 import Alert from 'react-bootstrap/Alert';
+import useGlobalContext from '../context/context';
 
-type Props = {
-    isAlertVisible: boolean;
-    messageHeading: string;
-    messageBody: string;
-    handleCloseAlert: ()=>void;
-};
+const AlertMessage: FC = () => {
+  const {
+    isAlertVisible, messageHeading, messageBody, handleCloseAlert,
+  } = useGlobalContext();
 
-const AlertMessage: FC<Props> = ({
-  isAlertVisible, messageHeading, messageBody, handleCloseAlert,
-}) => (
-  <Alert show={isAlertVisible} variant="success" onClose={handleCloseAlert} dismissible>
-    <Alert.Heading>{messageHeading}</Alert.Heading>
-    <p>
-      {messageBody}
-    </p>
-  </Alert>
+  return (
+    <Alert show={isAlertVisible} variant="success" onClose={handleCloseAlert} dismissible>
+      <Alert.Heading>{messageHeading}</Alert.Heading>
+      <p>
+        {messageBody}
+      </p>
+    </Alert>
   );
+};
 
 export default AlertMessage;

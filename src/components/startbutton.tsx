@@ -1,17 +1,15 @@
-import React from 'react';
+import React, { FC } from 'react';
 import Button from 'react-bootstrap/Button';
+import useGlobalContext from '../context/context';
 
-type Props = {
-  startButtonState: string;
-  startStop: () => void;
-};
+const StartButton: FC = () => {
+  const { startButtonState, handleStartStop } = useGlobalContext();
 
-function StartButton({ startButtonState, startStop }: Props): JSX.Element {
   return (
-    <Button className="col-4" disabled={startButtonState === 'Select Members'} onClick={() => startStop()}>
+    <Button className="col-4" disabled={startButtonState === 'Select Members'} onClick={() => handleStartStop?.()}>
       {startButtonState}
     </Button>
   );
-}
+};
 
 export default StartButton;

@@ -1,19 +1,15 @@
 import React, { FC } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import useGlobalContext from '../context/context';
 
-type Props = {
-  teams: string[];
-  selectedTeam: string;
-  handleChangeTeam: (eventKey: string | null, event: React.SyntheticEvent<unknown, Event>) => void;
-};
-
-const TeamSelector: FC<Props> = ({ teams, selectedTeam, handleChangeTeam }) => {
+const TeamSelector: FC = () => {
+  const { teams, selectedTeam, handleChangeTeam } = useGlobalContext();
   const items = teams.map((t: string) => (
     <Dropdown.Item key={t} eventKey={t} active={selectedTeam === t}>{t}</Dropdown.Item>
   ));
   return (
-    <DropdownButton id="dropdown-team" title={selectedTeam} onSelect={handleChangeTeam}>
+    <DropdownButton id="dropdown-team" title={selectedTeam} onSelect={(ek, e) => handleChangeTeam?.(ek, e)}>
       {items}
       <Dropdown.Divider />
       <Dropdown.Item eventKey="New" disabled>Create New</Dropdown.Item>
