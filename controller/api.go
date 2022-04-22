@@ -28,6 +28,22 @@ func handleMembers(c *gin.Context) {
 	c.JSON(http.StatusOK, *members)
 }
 
+func handleTeams(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	spreadsheetId := os.Getenv("SPREADSHEET_ID")
+	if spreadsheetId == "" {
+		log.Fatalf("Could not retrieve spreadsheetsId from env variable.")
+	}
+	teams, err := spreadsheets.TeamsFromSpreadsheet(string(spreadsheetId))
+	if err != nil {
+		msg := fmt.Sprintf("could not fetch teams data: %v", err)
+		log.Println(msg)
+		c.JSON(http.StatusInternalServerError, gin.H{"An error occurred": msg})
+		return
+	}
+	c.JSON(http.StatusOK, *teams)
+}
+
 // This handles a preflight call from the browser to check headers, required for CORS rules
 func handleOptions(c *gin.Context) {
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")

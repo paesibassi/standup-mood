@@ -15,7 +15,8 @@ func SetupRoutes(r *gin.Engine) {
 	{
 		api.GET("/members", handleMembers)
 		api.GET("/moods", handleMoods)
-		api.POST("/moods", handlePostMoods)
+		api.GET("/teams", handleTeams)
 		api.OPTIONS("/moods", handleOptions)
+		api.POST("/moods", handlePostMoods)
 	}
 }
