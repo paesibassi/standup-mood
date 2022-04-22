@@ -1,5 +1,6 @@
 import { individualSeconds, shuffleArray } from '../util';
 import allTeams from '../resources/teams.json';
+import { DateValue } from '../components/visualization/sparkline';
 
 export type State = {
   totalTime: number;
@@ -18,6 +19,7 @@ export type State = {
   messageBody: string;
   setState?: (s: Omit<State, 'setState'>) => void;
   updateState?: (s: Omit<State, 'updateState'>) => void;
+  memberHistory?: DateValue[][];
   barColors?: string[];
   disabledNext?: boolean;
   elapsedPercents?: number[];

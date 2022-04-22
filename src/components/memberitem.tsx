@@ -1,11 +1,14 @@
 import React, { FC } from 'react';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Container from 'react-bootstrap/Container';
+import Stack from 'react-bootstrap/Stack';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Progress from './progress';
 import MemberScore from './memberscore';
 import MemberSwitch from './memberswitch';
+import MoodHistory from './moodhist';
+import { DateValue } from './visualization/sparkline';
 import useGlobalContext from '../context/context';
 
 type Props = {
@@ -13,12 +16,13 @@ type Props = {
   index: number;
   activeMember: boolean;
   memberIdx: number;
+  memberHistory?: DateValue[];
   elapsedPercent?: number;
   barColor?: string;
 };
 
 const MemberItem: FC<Props> = ({
-    memberName, index, activeMember, memberIdx, elapsedPercent, barColor,
+    memberName, index, activeMember, memberIdx, elapsedPercent, barColor, memberHistory,
   }) => {
   const { handleSwitch } = useGlobalContext();
 
@@ -31,13 +35,14 @@ const MemberItem: FC<Props> = ({
     >
       <Container fluid className="px-0">
         <Row>
-          <Col xs={2}>
-            <div onClick={() => handleSwitch?.(index)} role="button" tabIndex={0} onKeyPress={() => handleSwitch?.(index)}>
+          <Col xs={2} className="px-1">
+            <Stack direction="horizontal" onClick={() => handleSwitch?.(index)} onKeyPress={() => handleSwitch?.(index)}>
               <MemberSwitch
                 memberName={memberName}
                 activeMember={activeMember}
               />
-            </div>
+              <MoodHistory memberHistory={memberHistory} />
+            </Stack>
           </Col>
           <Col xs={6} md={8}>
             <Progress

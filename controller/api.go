@@ -57,13 +57,17 @@ func handleMoods(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"An error occurred": msg})
 		return
 	}
+	type mood = struct {
+		Date time.Time
+		Mood float64
+	}
+	moods := make(map[string][]mood)
 	// discard null values and convert other values back to floats
-	moods := make(map[string][]float64)
 	for k, vals := range *nullableMoods {
-		var values []float64
+		var values []mood
 		for _, v := range vals {
-			if !v.IsNull() {
-				values = append(values, v.Value().(float64))
+			if !v.Mood.IsNull() {
+				values = append(values, mood{v.Date, v.Mood.Value().(float64)})
 			}
 			continue
 		}

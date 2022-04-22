@@ -1,8 +1,9 @@
 import React, {
- createContext, FC, ReactNode, useCallback, useContext, useEffect, useState,
+ createContext, FC, ReactNode, useCallback, useContext, useEffect, useMemo, useState,
 } from 'react';
 import { getInitialState, State } from './state';
 import { individualSeconds, progressPerc, progressVariant } from '../util';
+import { DateValue } from '../components/visualization/sparkline';
 
 const initialState = getInitialState('OneClientCore');
 const AppContext = createContext(initialState);
@@ -58,13 +59,36 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
   const showAlertMessage = (messageHeading: string, messageBody: string): void => {
     setState({
       ...state,
-      setState,
-      updateState,
       isAlertVisible: true,
       messageHeading,
       messageBody,
     });
   };
+
+  useMemo(() => {
+      async function fetchMoods() {
+          try {
+              const endpoint = `/api/moods?team=${state.selectedTeam}`;
+              const response = await fetch(endpoint);
+              const moods: {[m: string]: {Date: string, Mood: number}[]} = await response.json();
+              const history: DateValue[][] = state.members.map(
+                (m) => moods[m].map(
+                  (v) => ({ date: v.Date, value: v.Mood }),
+                  ),
+              );
+              setState((s) => ({ ...s, memberHistory: history }));
+          } catch (error) {
+            /// avoid using showAlertMessage here to avoid the additional dependency for useMemo
+            setState((s) => ({
+              ...s,
+              isAlertVisible: true,
+              messageHeading: 'Error',
+              messageBody: `Something went wrong, an error occurred when posting the moods: ${error}`,
+            }));
+          }
+      }
+      fetchMoods();
+  }, [state.selectedTeam, state.members]);
 
   const handleChangeMood = (idx: number, e: React.ChangeEvent<HTMLInputElement>): void => {
     const { memberScores } = state;
