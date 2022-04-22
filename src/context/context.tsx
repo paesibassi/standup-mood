@@ -1,12 +1,13 @@
 import React, {
- createContext, FC, ReactNode, useCallback, useContext, useEffect, useMemo, useState,
+ createContext, FC, ReactNode, useCallback, useContext, useEffect, useState,
 } from 'react';
-import { getInitialState, State } from './state';
+import { getInitialState, initializeTeam, State } from './state';
 import { individualSeconds, progressPerc, progressVariant } from '../util';
 import { DateValue } from '../components/visualization/sparkline';
 
-const initialState = getInitialState('OneClientCore');
+const initialState = getInitialState();
 const AppContext = createContext(initialState);
+const apiRoot = window.location.hostname === 'localhost' ? 'http://localhost:8282' : '';
 
 const increment = 1;
 const refreshRate = 1000; // 1 second
@@ -65,30 +66,72 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
     });
   };
 
-  useMemo(() => {
-      async function fetchMoods() {
-          try {
-              const endpoint = `/api/moods?team=${state.selectedTeam}`;
-              const response = await fetch(endpoint);
-              const moods: {[m: string]: {Date: string, Mood: number}[]} = await response.json();
-              const history: DateValue[][] = state.members.map(
-                (m) => moods[m].map(
-                  (v) => ({ date: v.Date, value: v.Mood }),
-                  ),
-              );
-              setState((s) => ({ ...s, memberHistory: history }));
-          } catch (error) {
-            /// avoid using showAlertMessage here to avoid the additional dependency for useMemo
-            setState((s) => ({
-              ...s,
-              isAlertVisible: true,
-              messageHeading: 'Error',
-              messageBody: `Something went wrong, an error occurred when posting the moods: ${error}`,
-            }));
-          }
+  useEffect(() => {
+    async function fetchTeams() {
+        try {
+            const endpoint = `${apiRoot}/api/teams`;
+            const response = await fetch(endpoint);
+            const teams: string[] = await response.json();
+            setState((s) => ({ ...s, teams }));
+        } catch (error) {
+          /// avoid using showAlertMessage here to avoid the additional dependency for useMemo
+          setState((s) => ({
+            ...s,
+            isAlertVisible: true,
+            messageHeading: 'Error',
+            messageBody: `Something went wrong, an error occurred when fetching members: ${error}`,
+          }));
+        }
+    }
+    // since it depends on state.teams, this should run only once
+    fetchTeams();
+  }, []);
+
+  useEffect(() => {
+    async function fetchMembers(selectedTeam: string): Promise<string[]> {
+      try {
+        const endpoint = `${apiRoot}/api/members?team=${selectedTeam}`;
+        const response = await fetch(endpoint);
+        const members: string[] = await response.json();
+        const teamState = initializeTeam(members);
+        setState((s) => ({ ...s, ...teamState }));
+        return members;
+      } catch (error) {
+        /// avoid using showAlertMessage here to avoid the additional dependency for useMemo
+        setState((s) => ({
+          ...s,
+          isAlertVisible: true,
+          messageHeading: 'Error',
+          messageBody: `Something went wrong, an error occurred when fetching members: ${error}`,
+        }));
+        return [];
       }
-      fetchMoods();
-  }, [state.selectedTeam, state.members]);
+    }
+    async function fetchMoods(selectedTeam: string): Promise<void> {
+      try {
+        const members: string[] = await fetchMembers(state.selectedTeam);
+        if (members.length === 0) return;
+        const endpoint = `${apiRoot}/api/moods?team=${selectedTeam}`;
+        const response = await fetch(endpoint);
+        const moods: {[m: string]: {Date: string, Mood: number}[]} = await response.json();
+        const history: DateValue[][] = members.map(
+          (m) => moods[m].map(
+            (v) => ({ date: v.Date, value: v.Mood }),
+            ),
+        );
+        setState((s) => ({ ...s, memberHistory: history }));
+      } catch (error) {
+        /// avoid using showAlertMessage here to avoid the additional dependency for useMemo
+        setState((s) => ({
+          ...s,
+          isAlertVisible: true,
+          messageHeading: 'Error',
+          messageBody: `Something went wrong, an error occurred when fetching mood history: ${error}`,
+        }));
+      }
+    }
+    fetchMoods(state.selectedTeam);
+  }, [state.selectedTeam]);
 
   const handleChangeMood = (idx: number, e: React.ChangeEvent<HTMLInputElement>): void => {
     const { memberScores } = state;
@@ -101,8 +144,8 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       event: React.SyntheticEvent<unknown, Event>,
     ): void => {
-    if (eventKey && setState) {
-      setState(getInitialState(eventKey));
+    if (eventKey) {
+      updateState({ selectedTeam: eventKey });
     }
   };
 
@@ -146,7 +189,7 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
   };
 
   const handleSubmit = async () => {
-    const endpoint = '/api/moods';
+    const endpoint = `${apiRoot}/api/moods`;
     const moodScores = state.members.reduce(
       (ms: { [key: string]: number; }, name: string, i: number) => {
       if (state.activeMembers[i]) {

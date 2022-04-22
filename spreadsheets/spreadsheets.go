@@ -79,6 +79,28 @@ func MembersFromSpreadsheet(spreadsheetId string, sheet string) (*[]string, erro
 	return &teamMembers, nil
 }
 
+func TeamsFromSpreadsheet(spreadsheetId string) (*[]string, error) {
+	readRange := "Teams!A1:A"
+	resp, err := SS.Spreadsheets.Values.Get(spreadsheetId, readRange).Do()
+	if err != nil {
+		return nil, fmt.Errorf("unable to retrieve data from sheet: %v", err)
+	}
+	if len(resp.Values) == 0 {
+		return nil, errors.New("no data found")
+	}
+	teams := make([]string, len(resp.Values))
+	for i, t := range resp.Values {
+		// multiple rows, only 1 column per row with team name
+		teamName, ok := t[0].(string)
+		if !ok {
+			log.Println("Wrong data type read")
+			continue
+		}
+		teams[i] = teamName
+	}
+	return &teams, nil
+}
+
 func WriteMoodScoresToSpreadsheet(spreadsheetId string, sheet string, members []string, date time.Time, moods map[string]NullableFloat) error {
 	writeRange := fmt.Sprintf("%s!A2:Z", sheet)
 	moodScores := make([]interface{}, len(members)+1)
@@ -136,7 +158,7 @@ func MoodScoresFromSpreadsheet(spreadsheetId string, sheet string) (*MoodHistory
 			continue
 		}
 
-		// other column contain either a mood score, or missing values
+		// other columns contain either a mood score, or missing values
 		for memberIdx, val := range row[1:] {
 			strVal, ok := val.(string)
 			if !ok {

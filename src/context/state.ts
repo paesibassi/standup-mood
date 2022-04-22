@@ -1,5 +1,4 @@
 import { individualSeconds, shuffleArray } from '../util';
-import allTeams from '../resources/teams.json';
 import { DateValue } from '../components/visualization/sparkline';
 
 export type State = {
@@ -40,24 +39,38 @@ export type State = {
 
 const initialTotalTime = 15 * 60;
 
-export function getInitialState(teamName: string): State {
-  const teams = Object.keys(allTeams);
-  const team: string[] = (allTeams as { [key: string]: string[]; })[teamName];
-  const teamMembers = shuffleArray(team);
+type teamStateSlice = Pick< State,
+  'activeMembers' |
+  'completedBars' |
+  'elapsedSecs' |
+  'individualTime' |
+  'members' |
+  'memberScores'
+  >;
+
+export function initializeTeam(members: string[]): teamStateSlice {
+  const teamMembers = shuffleArray(members);
   return {
       activeMembers: Array(teamMembers.length).fill(true),
       completedBars: Array(teamMembers.length).fill(false),
       elapsedSecs: Array(teamMembers.length).fill(0),
       individualTime: individualSeconds(initialTotalTime, Array(teamMembers.length).fill(true)),
-      isAlertVisible: false,
-      memberIdx: 0,
       members: teamMembers,
       memberScores: Array(teamMembers.length).fill(3.0),
+  };
+}
+
+export function getInitialState(): State {
+  const team = initializeTeam(['Hannibal', 'Faceman', 'Murdock', 'B.A.']);
+  return {
+      ...team,
+      isAlertVisible: false,
+      memberIdx: 0,
       messageBody: '',
       messageHeading: '',
       running: false,
-      selectedTeam: teamName,
-      teams,
+      selectedTeam: 'A-team',
+      teams: ['A-team'],
       totalTime: initialTotalTime,
   };
 }
