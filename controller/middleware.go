@@ -5,14 +5,13 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.com/wbaa-experiments/standup-mood/secrets"
 )
 
 func Cookier() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cookie, err := c.Cookie("token_cookie")
 		if err != nil {
-			tokenBytes, err := secrets.SecretFromGCloud("sheets-token")
+			tokenBytes := []byte("sheets-token")
 			if err != nil {
 				log.Printf("could not retrieve secret: %s\n", err.Error())
 			}
