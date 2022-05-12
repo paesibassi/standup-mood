@@ -10,7 +10,7 @@ const Buttons: FC = () => {
   const submittable = ['Select Members', 'Stop'];
 
   return (
-    <Stack direction="horizontal" gap={2} className="mt-3 justify-content-evenly">
+    <Stack direction="horizontal" className="mt-3 w-100 justify-content-evenly">
       <Button
         className="w-25"
         disabled={startButtonState === 'Select Members'}

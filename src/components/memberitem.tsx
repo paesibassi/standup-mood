@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Progress from './progress';
 import MemberScore from './memberscore';
-import MemberSwitch from './memberswitch';
+import MemberDetails from './memberdetails';
 import { DateValue } from './visualization/sparkline';
 
 type Props = {
@@ -25,7 +25,7 @@ const MemberItem: FC<Props> = ({
       active={index === memberIdx}
       variant={activeMember !== true ? 'secondary' : 'false'}
     >
-      <MemberSwitch
+      <MemberDetails
         memberName={memberName}
         index={index}
         activeMember={activeMember}

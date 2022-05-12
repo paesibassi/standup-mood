@@ -18,7 +18,7 @@ const CurrentSpeaker: FC<Props> = ({
     ? `${formatTimeMinSecs(secondsRemaining)}`
     : `-${formatTimeMinSecs(-secondsRemaining)}`;
   return (
-    <h4 className="text-center text-primary">
+    <h4 className="text-center my-auto text-primary">
       {currentSpeaker}
       <Badge pill bg={(secondsRemaining >= 0) ? 'primary' : 'danger'}>
         {currentTimeRemaining}
