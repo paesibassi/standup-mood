@@ -12,15 +12,15 @@ type Props = {
   memberHistory?: DateValue[];
 };
 
-const MemberSwitch: FC<Props> = ({
+const MemberDetails: FC<Props> = ({
  memberName, activeMember, index, memberHistory,
 }: Props) => {
   const { handleSwitch } = useGlobalContext();
   return (
     <Stack
       direction="horizontal"
-      className="w-25 justify-content-between"
-      style={{ width: '30%' }}
+      className="justify-content-between"
+      style={{ width: '35%' }}
       gap={1}
       onClick={() => handleSwitch?.(index)}
     >
@@ -34,11 +34,11 @@ const MemberSwitch: FC<Props> = ({
         />
       </Form>
       <div className="flex-grow-1">{memberName}</div>
-      <div className="d-none d-lg-block">
+      <div className="d-none d-lg-flex">
         <MoodHistory memberHistory={memberHistory} />
       </div>
     </Stack>
   );
 };
 
-export default MemberSwitch;
+export default MemberDetails;

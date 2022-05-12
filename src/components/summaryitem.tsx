@@ -17,7 +17,7 @@ const SummaryItem: FC = () => {
         elapsedSecs={elapsedSecs}
         individualTime={individualTime}
       />
-      <p className="h6 mt-1 text-center">
+      <p className="h6 my-auto text-center">
         {`avg score: ${averageMood?.toFixed(2)}`}
       </p>
     </ListGroup.Item>

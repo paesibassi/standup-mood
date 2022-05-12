@@ -1,8 +1,7 @@
 import React, { FC, useMemo } from 'react';
 import {
- curveBasis, interpolateCool, line, range, scaleLinear, scaleTime,
+ curveBasis, interpolateCool, line, mean, range, scaleLinear, scaleTime,
 } from 'd3';
-import VisContainer from './viscontainer';
 import './sparkline.css';
 
 export interface DateValue {
@@ -25,7 +24,7 @@ const Sparkline: FC<Props> = ({
 
     const timeScale = scaleTime()
         .domain([new Date(minDate), new Date()])
-        .range([xPadding * width, width * (1 - xPadding)])
+        .range([width * xPadding, width * (1 - xPadding)])
         .clamp(true);
 
     const yScale = scaleLinear()
@@ -41,14 +40,20 @@ const Sparkline: FC<Props> = ({
         [timeScale, yScale],
     );
 
+    const avgMood = mean(data.map((d) => yScale(d.value)));
+
     if (!data || data.length === 0) return null;
 
     const lastDataPoint = data[data.length - 1];
 
     return (
-      <VisContainer width={width} height={height}>
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        width={width}
+        height={height}
+      >
         <defs>
-          <linearGradient id="tg" x1="0%" x2="0%" y1="100%" y2="0%" gradientUnits="userSpaceOnUse">
+          <linearGradient id="gradient" x1="0%" x2="0%" y1="100%" y2="0%" gradientUnits="userSpaceOnUse">
             {range(10).map((i) => (
               <stop
                 key={i}
@@ -60,15 +65,20 @@ const Sparkline: FC<Props> = ({
         </defs>
         <g>
           <rect className="sparkline-bg" />
-          <path className="sparkline-line" d={(data && pathContext(data)) || ''} stroke="url(#tg)" />
+          <path
+            className="sparkline-line"
+            d={(data && pathContext(data)) || ''}
+            stroke="url(#gradient)"
+          />
+          <line x1={100 * xPadding} y1={avgMood} x2={100 * (1 - xPadding)} y2={avgMood} stroke="url(#gradient)" strokeDasharray="3" />
           <circle
             className="sparkline-point"
             cx={timeScale(new Date(lastDataPoint.date))}
             cy={yScale(lastDataPoint.value)}
-            fill="url(#tg)"
+            fill="url(#gradient)"
           />
         </g>
-      </VisContainer>
+      </svg>
     );
 };
 
