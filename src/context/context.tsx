@@ -7,7 +7,7 @@ import { DateValue } from '../components/visualization/sparkline';
 
 const initialState = getInitialState();
 const AppContext = createContext(initialState);
-const apiRoot = window.location.hostname === 'localhost' ? 'http://localhost:8282' : '';
+const apiRoot = process.env.NODE_ENV === 'development' ? 'http://localhost:8282' : '';
 
 const increment = 1;
 const refreshRate = 1000; // 1 second
@@ -133,9 +133,17 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
     fetchMoods(state.selectedTeam);
   }, [state.selectedTeam]);
 
-  const handleChangeMood = (idx: number, e: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleChangeMood = (idx: number, value: number): void => {
     const { memberScores } = state;
-    memberScores[idx] = parseFloat(e.target.value);
+    if (Number.isNaN(value) || value > 50) return;
+    // let user type decimal numbers between 1 and 5 without the comma, automatically convert them
+    let newValue:number;
+    if (value > 5) {
+      newValue = value / 10;
+    } else {
+      newValue = value;
+    }
+    memberScores[idx] = newValue;
     updateState({ memberScores });
   };
 

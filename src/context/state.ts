@@ -26,7 +26,7 @@ export type State = {
   averageMood?: number;
   startButtonState?: string;
   showAlertMessage?: (h: string, b: string) => void;
-  handleChangeMood?: (idx: number, e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleChangeMood?: (idx: number, value: number) => void;
   handleChangeTeam?: (eventKey: string | null, event: React.SyntheticEvent<unknown, Event>) => void;
   handleChangeTime?: (e: React.ChangeEvent<HTMLInputElement>) => void,
   handleCloseAlert?: () => void;

@@ -12,10 +12,10 @@ const MoodHistory: FC<Props> = ({ memberHistory }: Props) => {
       .toISOString()
       .substring(0, 10);
 
-    if (memberHistory === undefined) return null;
+    if (memberHistory === undefined) return <div className="border" style={{ width: 80, height: 30 }}>---</div>;
 
     return (
-      <Sparkline minDate={minDate} width={80} height={20} data={memberHistory} />
+      <Sparkline minDate={minDate} width={80} height={30} data={memberHistory} />
     );
 };
 
