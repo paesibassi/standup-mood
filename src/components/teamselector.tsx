@@ -8,8 +8,9 @@ const TeamSelector: FC = () => {
   const items = teams.map((t: string) => (
     <Dropdown.Item key={t} eventKey={t} active={selectedTeam === t}>{t}</Dropdown.Item>
   ));
+  const dropdownTitle = selectedTeam === null ? 'Select your team' : selectedTeam;
   return (
-    <DropdownButton id="dropdown-team" title={selectedTeam} onSelect={(ek, e) => handleChangeTeam?.(ek, e)}>
+    <DropdownButton id="dropdown-team" title={dropdownTitle} onSelect={(ek, e) => handleChangeTeam?.(ek, e)}>
       {items}
       <Dropdown.Divider />
       <Dropdown.Item eventKey="New" disabled>Create New</Dropdown.Item>

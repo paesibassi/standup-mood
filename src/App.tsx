@@ -1,12 +1,10 @@
 import { hot, setConfig } from 'react-hot-loader';
 import React, { FC } from 'react';
-import Container from 'react-bootstrap/Container';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
+import { Outlet } from 'react-router-dom';
+import Stack from 'react-bootstrap/Stack';
 import './App.css';
 import { GlobalProvider } from './context/context';
 import TimeRange from './components/timerange';
-import MemberList from './components/memberlist';
 import Buttons from './components/buttons';
 import AlertMessage from './components/alert';
 
@@ -16,29 +14,13 @@ setConfig({
 
 const App: FC = () => (
   <GlobalProvider>
-    <Container className="p-3">
-      <Row>
-        <Col>
-          <h1 className="header">Standup timer & mood scorer</h1>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <TimeRange />
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <MemberList />
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <AlertMessage />
-          <Buttons />
-        </Col>
-      </Row>
-    </Container>
+    <Stack gap={3} className="m-sm-3 m-1 p-sm-3 p-1">
+      <h1 className="header">Standup timer & mood scorer</h1>
+      <TimeRange />
+      <Outlet />
+      <AlertMessage />
+      <Buttons />
+    </Stack>
   </GlobalProvider>
 );
 

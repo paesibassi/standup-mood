@@ -6,8 +6,18 @@ import TeamSelector from './teamselector';
 
 const SummaryItem: FC = () => {
   const {
-    members, memberIdx, elapsedSecs, individualTime, averageMood,
+    members, memberIdx, elapsedSecs, individualTime, averageMood, selectedTeam,
   } = useGlobalContext();
+  if (selectedTeam === null) {
+    return (
+      <ListGroup.Item as="li" className="d-flex">
+        <TeamSelector />
+        <h4 className="mx-auto text-primary animate__animated animate__bounceInRight animate__delay-2s">
+          &larr; select your team using the dropdown
+        </h4>
+      </ListGroup.Item>
+    );
+  }
   return (
     <ListGroup.Item as="li" className="d-flex justify-content-between">
       <TeamSelector />

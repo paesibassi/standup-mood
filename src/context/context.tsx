@@ -1,6 +1,7 @@
 import React, {
  createContext, FC, ReactNode, useCallback, useContext, useEffect, useState,
 } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { getInitialState, initializeTeam, State } from './state';
 import { individualSeconds, progressPerc, progressVariant } from '../util';
 import { DateValue } from '../components/visualization/sparkline';
@@ -23,6 +24,9 @@ const tick = (
 
 export const GlobalProvider: FC<ReactNode> = ({ children }) => {
   const [state, setState] = useState(initialState);
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const updateState = useCallback(
     (partial: Partial<State>) => setState({ ...state, ...partial }),
     [state],
@@ -67,6 +71,17 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
   };
 
   useEffect(() => {
+    function setTeamOnLocation() {
+      const path = location.pathname;
+      if (path !== '/') {
+      const selectedTeam = path.slice(1);
+      setState((s) => ({ ...s, selectedTeam }));
+      }
+    }
+    setTeamOnLocation();
+  }, [location.pathname]);
+
+  useEffect(() => {
     async function fetchTeams() {
         try {
             const endpoint = `${apiRoot}/api/teams`;
@@ -109,7 +124,7 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
     }
     async function fetchMoods(selectedTeam: string): Promise<void> {
       try {
-        const members: string[] = await fetchMembers(state.selectedTeam);
+        const members: string[] = await fetchMembers(selectedTeam);
         if (members.length === 0) return;
         const endpoint = `${apiRoot}/api/moods?team=${selectedTeam}`;
         const response = await fetch(endpoint);
@@ -130,7 +145,7 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
         }));
       }
     }
-    fetchMoods(state.selectedTeam);
+    if (state.selectedTeam !== null) { fetchMoods(state.selectedTeam); }
   }, [state.selectedTeam]);
 
   const handleChangeMood = (idx: number, value: number): void => {
@@ -153,7 +168,7 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
       event: React.SyntheticEvent<unknown, Event>,
     ): void => {
     if (eventKey) {
-      updateState({ selectedTeam: eventKey });
+      navigate(`/${eventKey}`);
     }
   };
 
