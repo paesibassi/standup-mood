@@ -16,3 +16,15 @@
 .sparkline-point {
     r: 2.5px;
 }
+
+.sparkline-avg-line {
+    stroke: url(#gradient);
+    stroke-dasharray: 3;
+    stroke-opacity: 0.7;
+}
+
+.sparkline-mid-line {
+    stroke: url(#gradient);
+    stroke-dasharray: 6;
+    stroke-opacity: 0.3;
+}

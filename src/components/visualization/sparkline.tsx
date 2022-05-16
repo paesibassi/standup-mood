@@ -40,11 +40,11 @@ const Sparkline: FC<Props> = ({
         [timeScale, yScale],
     );
 
-    const avgMood = mean(data.map((d) => yScale(d.value)));
-
     if (!data || data.length === 0) return null;
 
+    const avgMood = mean(data.map((d) => d.value)) as number;
     const lastDataPoint = data[data.length - 1];
+    const avgSignDiffers = Math.abs(avgMood - 3) > 0.5;
 
     return (
       <svg
@@ -65,12 +65,25 @@ const Sparkline: FC<Props> = ({
         </defs>
         <g>
           <rect className="sparkline-bg" />
+          <line 
+            x1={timeScale.range()[0]} 
+            x2={timeScale.range()[1]} 
+            y1={yScale(3)} 
+            y2={yScale(3)} 
+            className="sparkline-mid-line"
+          />
+          { avgSignDiffers && <line 
+            x1={timeScale.range()[0]} 
+            x2={timeScale.range()[1]} 
+            y1={yScale(avgMood)} 
+            y2={yScale(avgMood)} 
+            className="sparkline-avg-line"
+          />}
           <path
             className="sparkline-line"
             d={(data && pathContext(data)) || ''}
             stroke="url(#gradient)"
           />
-          <line x1={100 * xPadding} y1={avgMood} x2={100 * (1 - xPadding)} y2={avgMood} stroke="url(#gradient)" strokeDasharray="3" />
           <circle
             className="sparkline-point"
             cx={timeScale(new Date(lastDataPoint.date))}
