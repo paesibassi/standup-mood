@@ -4,6 +4,7 @@ const typescriptLint = require('neutrinojs-typescript-eslint');
 const copy = require('@neutrinojs/copy');
 const react = require('@neutrinojs/react');
 const jest = require('@neutrinojs/jest');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   options: {
@@ -22,7 +23,7 @@ module.exports = {
         ],
       },
       include: [''], // sources and tests are included by default
-      exclude: ['build',  'node_modules'],
+      exclude: ['build',  'node_modules', 'controller', 'oauth', 'secrets', 'spreadsheets'],
     } }), // must be first in use section
     typescriptLint({
       recommended: true,

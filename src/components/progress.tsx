@@ -26,7 +26,7 @@ const Progress: FC<Props> = ({ elapsedPercent, barColor, index }) => {
         label={`${elapsedPercent}%`}
         variant={barColor}
       />
-      <div className={`d-md-none badge rounded-pill ${pillBackground} position-absolute top-50 start-50 translate-middle px-5 py-1`}>
+      <div className={`d-md-none badge rounded-pill ${pillBackground} position-absolute top-50 start-50 translate-middle px-4 py-1`}>
         {`${elapsedPercent}%`}
       </div>
     </div>

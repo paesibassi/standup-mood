@@ -20,7 +20,7 @@ const MemberItem: FC<Props> = ({
   }) => (
     <ListGroup.Item
       as="li"
-      className="d-flex gap-2"
+      className="d-flex gap-2 animate__animated animate__fadeInUp"
       action
       active={index === memberIdx}
       variant={activeMember !== true ? 'secondary' : 'false'}

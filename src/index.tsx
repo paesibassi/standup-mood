@@ -1,7 +1,21 @@
 import React from 'react';
 import { render } from 'react-dom';
-import App from './App';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
+import 'animate.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-render(<App />, document.getElementById('root'));
+import App from './App';
+import MemberList from './components/memberlist';
+
+render(
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<App />}>
+        <Route index element={(<MemberList />)} />
+        <Route path="*" element={<MemberList />} />
+      </Route>
+    </Routes>
+  </BrowserRouter>,
+    document.getElementById('root'),
+);

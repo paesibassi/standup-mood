@@ -8,7 +8,7 @@ const MemberList: FC = () => {
   const {
     members, activeMembers, memberIdx, elapsedPercents, barColors, memberHistory,
   } = useGlobalContext();
-  const ml = members.map((memberName, i) => (
+  const memberItems = members.map((memberName, i) => (
     <MemberItem
       key={memberName}
       memberName={memberName}
@@ -23,7 +23,7 @@ const MemberList: FC = () => {
   return (
     <ListGroup>
       <SummaryItem key="summary" />
-      {ml}
+      {memberItems.length > 0 ? memberItems : null}
     </ListGroup>
   );
 };

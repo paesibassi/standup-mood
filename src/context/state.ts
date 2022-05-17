@@ -6,7 +6,7 @@ export type State = {
   individualTime: number;
   running: boolean;
   teams: string[];
-  selectedTeam: string;
+  selectedTeam: string | null;
   members: string[];
   activeMembers: boolean[];
   memberScores: number[];
@@ -49,6 +49,16 @@ type teamStateSlice = Pick< State,
   >;
 
 export function initializeTeam(members: string[]): teamStateSlice {
+  if (members.length === 0) {
+    return {
+      activeMembers: [false],
+      completedBars: [false],
+      elapsedSecs: [0],
+      individualTime: 0,
+      members: [],
+      memberScores: [0],
+    };
+  }
   const teamMembers = shuffleArray(members);
   return {
       activeMembers: Array(teamMembers.length).fill(true),
@@ -61,16 +71,16 @@ export function initializeTeam(members: string[]): teamStateSlice {
 }
 
 export function getInitialState(): State {
-  const team = initializeTeam(['Hannibal', 'Faceman', 'Murdock', 'B.A.']);
+  const initialTeam = initializeTeam([]);
   return {
-      ...team,
+      ...initialTeam,
       isAlertVisible: false,
       memberIdx: 0,
       messageBody: '',
       messageHeading: '',
       running: false,
-      selectedTeam: 'A-team',
-      teams: ['A-team'],
+      selectedTeam: null,
+      teams: [],
       totalTime: initialTotalTime,
   };
 }
