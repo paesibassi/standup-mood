@@ -8,13 +8,15 @@ const SummaryItem: FC = () => {
   const {
     members, memberIdx, elapsedSecs, individualTime, averageMood, selectedTeam,
   } = useGlobalContext();
-  if (selectedTeam === null) {
+  if (members.length === 0) {
     return (
       <ListGroup.Item as="li" className="d-flex">
         <TeamSelector />
+        { (selectedTeam === null) && (
         <h4 className="mx-auto text-primary animate__animated animate__bounceInRight animate__delay-2s">
           &larr; select your team using the dropdown
         </h4>
+        )}
       </ListGroup.Item>
     );
   }

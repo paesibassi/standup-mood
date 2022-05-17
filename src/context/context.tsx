@@ -72,9 +72,10 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
 
   useEffect(() => {
     function setTeamOnLocation() {
-      const path = location.pathname;
-      if (path !== '/') {
-      const selectedTeam = path.slice(1);
+      const path = location.pathname.split('/');
+      // root path === ["", ""]
+      if (path.length > 2 && path[1] === 'team') {
+      const selectedTeam = path[2];
       setState((s) => ({ ...s, selectedTeam }));
       }
     }
@@ -168,7 +169,7 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
       event: React.SyntheticEvent<unknown, Event>,
     ): void => {
     if (eventKey) {
-      navigate(`/${eventKey}`);
+      navigate(`/team/${eventKey}`);
     }
   };
 
