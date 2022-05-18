@@ -4,27 +4,28 @@ const typescriptLint = require('neutrinojs-typescript-eslint');
 const copy = require('@neutrinojs/copy');
 const react = require('@neutrinojs/react');
 const jest = require('@neutrinojs/jest');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   options: {
     root: __dirname,
   },
   use: [
-    typescript({ tsconfig: {
-      compilerOptions: {
-        strict: true,
-        allowJs: true,
-        declaration: true,
-        importsNotUsedAsValues: 'remove',
-        typeRoots: [
-          'src/types', // custom types directory
-          'node_modules/@types',
-        ],
-      },
-      include: [''], // sources and tests are included by default
-      exclude: ['build',  'node_modules', 'controller', 'oauth', 'secrets', 'spreadsheets'],
-    } }), // must be first in use section
+    typescript({
+      tsconfig: {
+        compilerOptions: {
+          strict: true,
+          allowJs: true,
+          declaration: true,
+          importsNotUsedAsValues: 'remove',
+          typeRoots: [
+            'src/types', // custom types directory
+            'node_modules/@types',
+          ],
+        },
+        include: [''], // sources and tests are included by default
+        exclude: ['build', 'node_modules', 'controller', 'oauth', 'secrets', 'spreadsheets'],
+      }
+    }), // must be first in use section
     typescriptLint({
       recommended: true,
     }),
@@ -48,5 +49,8 @@ module.exports = {
       }
     }),
     jest(),
+    (neutrino) => {
+      neutrino.config.resolve.alias.set('react-dom', '@hot-loader/react-dom')
+    }
   ],
 };
