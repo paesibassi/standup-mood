@@ -1,6 +1,8 @@
 import { individualSeconds, shuffleArray } from '../util';
 import { DateValue } from '../components/visualization/sparkline';
 
+export type startButtonValues = 'Stop' | 'Select Members' | 'Start';
+
 export type State = {
   totalTime: number;
   individualTime: number;
@@ -24,7 +26,7 @@ export type State = {
   elapsedPercents?: number[];
   numActiveMembers?: number;
   averageMood?: number;
-  startButtonState?: string;
+  startButtonState?: startButtonValues;
   showAlertMessage?: (h: string, b: string) => void;
   handleChangeMood?: (idx: number, value: number) => void;
   handleChangeTeam?: (eventKey: string | null, event: React.SyntheticEvent<unknown, Event>) => void;

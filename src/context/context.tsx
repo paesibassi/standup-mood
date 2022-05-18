@@ -2,7 +2,9 @@ import React, {
  createContext, FC, ReactNode, useCallback, useContext, useEffect, useState,
 } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getInitialState, initializeTeam, State } from './state';
+import {
+  getInitialState, initializeTeam, startButtonValues, State,
+ } from './state';
 import { individualSeconds, progressPerc, progressVariant } from '../util';
 import { DateValue } from '../components/visualization/sparkline';
 
@@ -52,7 +54,7 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
     (_, i) => state.activeMembers[i],
     ).reduce((a, b) => a + b, 0);
   const averageMood = sumMood / state.activeMembers.filter(Boolean).length;
-  const startButtonState = (): string => {
+  const startButtonState = (): startButtonValues => {
     if (state.running) {
       return 'Stop';
     } if (state.activeMembers.filter(Boolean).length === 0) {
