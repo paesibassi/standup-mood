@@ -2,8 +2,9 @@ import React from 'react';
 import { render } from 'react-dom';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import 'animate.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import 'animate.css';
 
 import App from './App';
 import MemberList from './components/memberlist';

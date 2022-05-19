@@ -15,7 +15,7 @@ const TimeRange: FC = () => {
     totalTime, individualTime, numActiveMembers, handleChangeTime,
   } = useGlobalContext();
 
-  const timeLabel = `Standup time: ${formatTimeMinSecs(totalTime, minsSecondsSubstr)}`;
+  const timeLabel = `Total time: ${formatTimeMinSecs(totalTime, minsSecondsSubstr)}`;
   const timeText = `${formatTimeMinSecs(individualTime, minsSecondsSubstr)} for ${numActiveMembers} joiners`;
   return (
     <Form>
