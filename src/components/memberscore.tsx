@@ -21,17 +21,22 @@ const MemberScore: FC<Props> = ({ index }) => {
       placement="auto-start"
       overlay={(
         <Tooltip id="mood-score-tooltip">
-          <strong>Mood score </strong>
-          takes any value starting from 1 (
+          A
+          <strong> Mood score </strong>
+          represents how you feel today. It is a number between 1 (
           <i className="bi bi-emoji-frown" />
           <em> one of those very bad days</em>
-          ) to 5 (
+          ) and 5 (
           <i className="bi bi-emoji-laughing" />
           <em> I feel great!</em>
           ).
+          <br />
+          To input a decimal value (such as 4.2), type it in without comma or dot (
+          <em>42</em>
+          ).
         </Tooltip>
       )}
-      delay={{ show: 500, hide: 700 }}
+      delay={{ show: 800, hide: 600 }}
     >
       <Stack direction="horizontal" className="d-flex justify-content-end" gap={1}>
         <Form.Control
