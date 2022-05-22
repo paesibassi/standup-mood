@@ -1,12 +1,14 @@
 import React, { FC } from 'react';
 import ListGroup from 'react-bootstrap/ListGroup';
+import Stack from 'react-bootstrap/Stack';
 import useGlobalContext from '../context/context';
 import CurrentSpeaker from './currentspeaker';
+import MoodHistory from './moodhist';
 import TeamSelector from './teamselector';
 
 const SummaryItem: FC = () => {
   const {
-    members, memberIdx, elapsedSecs, individualTime, averageMood, selectedTeam,
+    members, memberIdx, elapsedSecs, individualTime, averageMood, selectedTeam, teamHistory,
   } = useGlobalContext();
   if (members.length === 0) {
     return (
@@ -21,8 +23,18 @@ const SummaryItem: FC = () => {
     );
   }
   return (
-    <ListGroup.Item as="li" className="d-flex justify-content-between">
-      <TeamSelector />
+    <ListGroup.Item as="li" className="d-flex gap-2 justify-content-between">
+      <Stack
+        direction="horizontal"
+        className="justify-content-between"
+        style={{ width: '23%' }}
+        gap={1}
+      >
+        <TeamSelector />
+        <div className="d-none d-lg-flex">
+          <MoodHistory moodHistory={teamHistory} width={133} height={50} />
+        </div>
+      </Stack>
       <CurrentSpeaker
         members={members}
         memberIdx={memberIdx}
