@@ -10,13 +10,13 @@ type Props = {
   index: number;
   activeMember: boolean;
   memberIdx: number;
-  memberHistory?: DateValue[];
+  moodHistory?: DateValue[];
   elapsedPercent?: number;
   barColor?: string;
 };
 
 const MemberItem: FC<Props> = ({
-    memberName, index, activeMember, memberIdx, elapsedPercent, barColor, memberHistory,
+    memberName, index, activeMember, memberIdx, elapsedPercent, barColor, moodHistory,
   }) => (
     <ListGroup.Item
       as="li"
@@ -29,7 +29,7 @@ const MemberItem: FC<Props> = ({
         memberName={memberName}
         index={index}
         activeMember={activeMember}
-        memberHistory={memberHistory}
+        moodHistory={moodHistory}
       />
       <Progress
         elapsedPercent={elapsedPercent}

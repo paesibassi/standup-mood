@@ -5,6 +5,7 @@ go 1.17
 require (
 	cloud.google.com/go/secretmanager v1.3.0
 	github.com/gin-gonic/gin v1.7.7
+	github.com/montanaflynn/stats v0.6.6
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b
 	google.golang.org/api v0.70.0
 	google.golang.org/genproto v0.0.0-20220310185008-1973136f34c6

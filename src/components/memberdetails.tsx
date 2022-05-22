@@ -9,11 +9,11 @@ type Props = {
   memberName: string;
   activeMember: boolean;
   index: number;
-  memberHistory?: DateValue[];
+  moodHistory?: DateValue[];
 };
 
 const MemberDetails: FC<Props> = ({
- memberName, activeMember, index, memberHistory,
+ memberName, activeMember, index, moodHistory,
 }: Props) => {
   const { handleSwitch } = useGlobalContext();
   return (
@@ -35,7 +35,7 @@ const MemberDetails: FC<Props> = ({
       </Form>
       <div className="flex-grow-1">{memberName}</div>
       <div className="d-none d-lg-flex">
-        <MoodHistory memberHistory={memberHistory} />
+        <MoodHistory moodHistory={moodHistory} />
       </div>
     </Stack>
   );

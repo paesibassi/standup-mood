@@ -5,9 +5,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/montanaflynn/stats"
 	"gitlab.com/wbaa-experiments/standup-mood/spreadsheets"
 )
 
@@ -53,12 +55,6 @@ func handleOptions(c *gin.Context) {
 	c.AbortWithStatus(http.StatusNoContent)
 }
 
-type moodScores struct {
-	Date  string             `json:"date"`
-	Team  string             `json:"team"`
-	Moods map[string]float64 `json:"moods"`
-}
-
 func handleMoods(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 	spreadsheetId := os.Getenv("SPREADSHEET_ID")
@@ -73,23 +69,94 @@ func handleMoods(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"An error occurred": msg})
 		return
 	}
-	type mood = struct {
-		Date time.Time
-		Mood float64
-	}
-	moods := make(map[string][]mood)
+	moods := computeMoodMetrics(nullableMoods)
+	c.JSON(http.StatusOK, moods)
+}
+
+type mood = struct {
+	Date time.Time
+	Mood float64
+}
+
+type moodSummary = struct {
+	Min    float64 `json:"min"`
+	Max    float64 `json:"max"`
+	Q1     float64 `json:"q1"`
+	Mean   float64 `json:"mean"`
+	Q3     float64 `json:"q3"`
+	Values []mood  `json:"values"`
+}
+
+type teamMooods = struct {
+	Team    moodSummary            `json:"team"`
+	Members map[string]moodSummary `json:"members"`
+}
+
+func computeMoodMetrics(nullableMoods *spreadsheets.MoodHistory) teamMooods {
+	memberMoods := make(map[string]moodSummary)
 	// discard null values and convert other values back to floats
-	for k, vals := range *nullableMoods {
-		var values []mood
-		for _, v := range vals {
+	var allValues []float64
+	teamMoods := make(map[time.Time][]float64)
+	for memberName, scores := range *nullableMoods {
+		var moods []mood
+		var values []float64
+		for _, v := range scores {
 			if !v.Mood.IsNull() {
-				values = append(values, mood{v.Date, v.Mood.Value().(float64)})
+				floatValue := v.Mood.Value().(float64)
+				moods = append(moods, mood{v.Date, floatValue})
+				values = append(values, floatValue)
+				teamMoods[v.Date] = append(teamMoods[v.Date], floatValue)
+				allValues = append(allValues, floatValue)
 			}
 			continue
 		}
-		moods[k] = values
+		min, _ := stats.Min(values)
+		max, _ := stats.Max(values)
+		quartiles, _ := stats.Quartile(values)
+		memberMoods[memberName] = moodSummary{min, max, quartiles.Q1, quartiles.Q2, quartiles.Q3, moods}
 	}
-	c.JSON(http.StatusOK, moods)
+	min, _ := stats.Min(allValues)
+	max, _ := stats.Max(allValues)
+	quartiles, _ := stats.Quartile(allValues)
+	teamAvgMoods := moodAverageByDates(teamMoods)
+	team := moodSummary{
+		Min:    min,
+		Max:    max,
+		Q1:     quartiles.Q1,
+		Mean:   quartiles.Q2,
+		Q3:     quartiles.Q3,
+		Values: teamAvgMoods,
+	}
+	return teamMooods{team, memberMoods}
+}
+
+func sortMapByDates(teamMoods map[time.Time][]float64) []time.Time {
+	dates := make([]time.Time, 0, len(teamMoods))
+	for date := range teamMoods {
+		dates = append(dates, date)
+	}
+	sort.Slice(dates, func(i, j int) bool {
+		return dates[i].Before(dates[j])
+	})
+	return dates
+}
+
+func moodAverageByDates(teamMoods map[time.Time][]float64) []mood {
+	teamAvgMoods := make([]mood, 0, len(teamMoods))
+	dates := sortMapByDates(teamMoods)
+	for _, date := range dates {
+		mean, _ := stats.Mean(teamMoods[date])
+		teamAvgMoods = append(teamAvgMoods, mood{date, mean})
+	}
+	return teamAvgMoods
+}
+
+type Moods map[string]float64
+
+type moodScores struct {
+	Date  string `json:"date"`
+	Team  string `json:"team"`
+	Moods `json:"moods"`
 }
 
 func handlePostMoods(c *gin.Context) {

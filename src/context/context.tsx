@@ -125,19 +125,43 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
         return [];
       }
     }
+
+    interface Value {
+      Date: string;
+      Mood: number;
+    }
+    interface MoodSummary {
+      min: number;
+      max: number;
+      q1: number;
+      mean: number;
+      q3: number;
+      values: Value[];
+    }
+    interface Members {
+      [name: string]: MoodSummary;
+    }
+    interface TeamMoods {
+      team: MoodSummary;
+      members: Members;
+    }
+
     async function fetchMoods(selectedTeam: string): Promise<void> {
       try {
         const members: string[] = await fetchMembers(selectedTeam);
         if (members.length === 0) return;
         const endpoint = `${apiRoot}/api/moods?team=${selectedTeam}`;
         const response = await fetch(endpoint);
-        const moods: {[m: string]: {Date: string, Mood: number}[]} = await response.json();
-        const history: DateValue[][] = members.map(
-          (m) => moods[m].map(
+        const teammoods: TeamMoods = await response.json();
+        const teamHistory: DateValue[] = teammoods.team.values.map(
+          (v) => ({ date: v.Date, value: v.Mood }),
+        );
+        const moodHistory: DateValue[][] = members.map(
+          (memberName) => teammoods.members[memberName].values.map(
             (v) => ({ date: v.Date, value: v.Mood }),
             ),
         );
-        setState((s) => ({ ...s, memberHistory: history }));
+        setState((s) => ({ ...s, teamHistory, moodHistory }));
       } catch (error) {
         /// avoid using showAlertMessage here to avoid the additional dependency for useMemo
         setState((s) => ({
