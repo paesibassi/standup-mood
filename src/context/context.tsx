@@ -190,28 +190,33 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
     });
   };
 
-  const handleNext = (): void => {
-    const { completedBars } = state;
-    completedBars[state.memberIdx] = true;
-    const next = state.activeMembers.indexOf(true, state.memberIdx + 1);
+  const handleNext = (): number => {
+    const { completedBars, memberIdx, activeMembers } = state;
+    completedBars[memberIdx] = true;
+    const next = activeMembers.indexOf(true, memberIdx + 1);
     if (next !== -1) {
       updateState({ completedBars, memberIdx: next });
     }
+    return next;
   };
 
   const handleStartStop = (): void => {
+    const { memberIdx, activeMembers, elapsedSecs } = state;
+    let next = memberIdx;
     if (state.running) {
       clearInterval(timerID);
     } else {
-      if (state.activeMembers[state.memberIdx] === false) {
-        handleNext();
+      if (activeMembers[memberIdx] === false) {
+        // the updateState inside of handleNext will be overwritten, so need to use
+        // return value for next, and use it to update state here
+        next = handleNext();
       }
       timerID = setInterval(
-        () => tick(updateState, state.memberIdx, state.elapsedSecs),
+        () => tick(updateState, next, elapsedSecs),
         refreshRate,
       );
     }
-    updateState({ running: !state.running });
+    updateState({ running: !state.running, memberIdx: next });
   };
 
   const handleSubmit = async () => {
