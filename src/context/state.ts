@@ -20,7 +20,8 @@ export type State = {
   messageBody: string;
   setState?: (s: Omit<State, 'setState'>) => void;
   updateState?: (s: Omit<State, 'updateState'>) => void;
-  memberHistory?: DateValue[][];
+  teamHistory?: DateValue[];
+  moodHistory?: DateValue[][];
   barColors?: string[];
   disabledNext?: boolean;
   elapsedPercents?: number[];

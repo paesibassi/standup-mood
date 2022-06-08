@@ -38,21 +38,6 @@ func (nf NullableFloat) Value() interface{} {
 	return nf.val
 }
 
-// func sumAndLen(a []NullableFloat) (s float64, l float64) {
-// 	for _, v := range a {
-// 		if !v.isNull() {
-// 			s += v.val
-// 			l += 1
-// 		}
-// 	}
-// 	return
-// }
-
-// func average(a []NullableFloat) float64 {
-// 	s, l := sumAndLen(a)
-// 	return s / l
-// }
-
 func membersNamesFromRange(resp *sheets.ValueRange) (teamMembers []string) {
 	for _, m := range resp.Values[0][1:] {
 		memberName, ok := m.(string)

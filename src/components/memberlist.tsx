@@ -6,7 +6,7 @@ import SummaryItem from './summaryitem';
 
 const MemberList: FC = () => {
   const {
-    members, activeMembers, memberIdx, elapsedPercents, barColors, memberHistory,
+    members, activeMembers, memberIdx, elapsedPercents, barColors, moodHistory,
   } = useGlobalContext();
   const memberItems = members.map((memberName, i) => (
     <MemberItem
@@ -17,7 +17,7 @@ const MemberList: FC = () => {
       memberIdx={memberIdx}
       elapsedPercent={elapsedPercents?.[i]}
       barColor={barColors?.[i]}
-      memberHistory={memberHistory?.[i]}
+      moodHistory={moodHistory?.[i]}
     />
   ));
   return (
