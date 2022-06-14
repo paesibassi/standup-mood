@@ -2,27 +2,15 @@ import React, {
  createContext, FC, ReactNode, useCallback, useContext, useEffect, useState,
 } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
 import {
-  getInitialState, initializeTeam, startButtonValues, State,
- } from './state';
+ getInitialState, initializeTeam, startButtonValues, State,
+} from './state';
+import { useMembers, useMoods, useTeams } from './hooks';
 import { individualSeconds, progressPerc, progressVariant } from '../util';
-import { DateValue } from '../components/visualization/sparkline';
 
 const initialState = getInitialState();
 const AppContext = createContext(initialState);
 const apiRoot = process.env.NODE_ENV === 'development' ? 'http://localhost:8282' : '';
-
-const queryClient = new QueryClient();
-
-const fetchTeams = () => {
-  const { isLoading, error, data } = useQuery('teams', () => (
-    fetch('/api/teams', { method: 'get', mode: 'same-origin' }).then((res) => res.json())
-  ));
-  if (isLoading) return 'Loading teams';
-  if (error) return `An error has occurred: ${error}`;
-  return data;
-};
 
 const increment = 1;
 const refreshRate = 1000; // 1 second
@@ -40,6 +28,9 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
   const [state, setState] = useState(initialState);
   const location = useLocation();
   const navigate = useNavigate();
+  const teams = useTeams();
+  const teamMembers = useMembers(state.selectedTeam);
+  const moods = useMoods(state.selectedTeam, teamMembers);
 
   const updateState = useCallback(
     (partial: Partial<State>) => setState({ ...state, ...partial }),
@@ -97,95 +88,13 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
   }, [location.pathname]);
 
   useEffect(() => {
-    async function fetchTeams() {
-        try {
-            const endpoint = `${apiRoot}/api/teams`;
-            const response = await fetch(endpoint);
-            const teams: string[] = await response.json();
-            setState((s) => ({ ...s, teams }));
-        } catch (error) {
-          /// avoid using showAlertMessage here to avoid the additional dependency for useMemo
-          setState((s) => ({
-            ...s,
-            isAlertVisible: true,
-            messageHeading: 'Error',
-            messageBody: `Something went wrong, an error occurred when fetching members: ${error}`,
-          }));
-        }
-    }
-    // since it depends on state.teams, this should run only once
-    fetchTeams();
-  }, []);
+    const teamState = initializeTeam(teamMembers);
+    setState((s) => ({ ...s, ...teamState }));
+  }, [teamMembers]);
 
   useEffect(() => {
-    async function fetchMembers(selectedTeam: string): Promise<string[]> {
-      try {
-        const endpoint = `${apiRoot}/api/members?team=${selectedTeam}`;
-        const response = await fetch(endpoint);
-        const members: string[] = await response.json();
-        const teamState = initializeTeam(members);
-        setState((s) => ({ ...s, ...teamState }));
-        return members;
-      } catch (error) {
-        /// avoid using showAlertMessage here to avoid the additional dependency for useMemo
-        setState((s) => ({
-          ...s,
-          isAlertVisible: true,
-          messageHeading: 'Error',
-          messageBody: `Something went wrong, an error occurred when fetching members: ${error}`,
-        }));
-        return [];
-      }
-    }
-
-    interface Value {
-      Date: string;
-      Mood: number;
-    }
-    interface MoodSummary {
-      min: number;
-      max: number;
-      q1: number;
-      mean: number;
-      q3: number;
-      values: Value[];
-    }
-    interface Members {
-      [name: string]: MoodSummary;
-    }
-    interface TeamMoods {
-      team: MoodSummary;
-      members: Members;
-    }
-
-    async function fetchMoods(selectedTeam: string): Promise<void> {
-      try {
-        const members: string[] = await fetchMembers(selectedTeam);
-        if (members.length === 0) return;
-        const endpoint = `${apiRoot}/api/moods?team=${selectedTeam}`;
-        const response = await fetch(endpoint);
-        const teammoods: TeamMoods = await response.json();
-        const teamHistory: DateValue[] = teammoods.team.values.map(
-          (v) => ({ date: v.Date, value: v.Mood }),
-        );
-        const moodHistory: DateValue[][] = members.map(
-          (memberName) => teammoods.members[memberName].values?.map(
-            (v) => ({ date: v.Date, value: v.Mood }),
-            ),
-        );
-        setState((s) => ({ ...s, teamHistory, moodHistory }));
-      } catch (error) {
-        /// avoid using showAlertMessage here to avoid the additional dependency for useMemo
-        setState((s) => ({
-          ...s,
-          isAlertVisible: true,
-          messageHeading: 'Error',
-          messageBody: `Something went wrong, an error occurred when fetching mood history: ${error}`,
-        }));
-      }
-    }
-    if (state.selectedTeam !== null) { fetchMoods(state.selectedTeam); }
-  }, [state.selectedTeam]);
+    setState((s) => ({ ...s, ...moods }));
+  }, [moods]);
 
   const handleChangeMood = (idx: number, value: number): void => {
     const { memberScores } = state;
@@ -305,32 +214,31 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
 
   return (
     <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <AppContext.Provider value={{
-          ...state,
-          setState,
-          updateState,
-          numActiveMembers,
-          barColors,
-          disabledNext,
-          elapsedPercents,
-          averageMood,
-          startButtonState: startButtonState(),
-          showAlertMessage,
-          handleChangeMood,
-          handleChangeTeam,
-          handleChangeTime,
-          handleCloseAlert,
-          handleNext,
-          handleSelectMember,
-          handleStartStop,
-          handleSubmit,
-          handleSwitch,
-        }}
-        >
-          { children }
-        </AppContext.Provider>
-      </QueryClientProvider>
+      <AppContext.Provider value={{
+        ...state,
+        setState,
+        updateState,
+        teams,
+        numActiveMembers,
+        barColors,
+        disabledNext,
+        elapsedPercents,
+        averageMood,
+        startButtonState: startButtonState(),
+        showAlertMessage,
+        handleChangeMood,
+        handleChangeTeam,
+        handleChangeTime,
+        handleCloseAlert,
+        handleNext,
+        handleSelectMember,
+        handleStartStop,
+        handleSubmit,
+        handleSwitch,
+      }}
+      >
+        { children }
+      </AppContext.Provider>
     </React.StrictMode>
   );
 };

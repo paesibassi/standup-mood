@@ -42,7 +42,7 @@ export type State = {
 
 const initialTotalTime = 15 * 60;
 
-type teamStateSlice = Pick< State,
+export type teamStateSlice = Pick< State,
   'activeMembers' |
   'completedBars' |
   'elapsedSecs' |
