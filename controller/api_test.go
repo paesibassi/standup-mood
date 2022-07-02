@@ -1,12 +1,12 @@
 package controller
 
 import (
-	"math"
 	"testing"
 	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/r3labs/diff"
 	"gitlab.com/wbaa-experiments/standup-mood/spreadsheets"
 )
 
@@ -18,9 +18,9 @@ func TestComputeMoodMetrics(t *testing.T) {
 		nullableMoods *spreadsheets.MoodHistory
 	}
 	tests := []struct {
-		name string
-		args args
-		want teamMooods
+		name     string
+		args     args
+		expected teamMooods
 	}{
 		{
 			"Basic",
@@ -51,19 +51,28 @@ func TestComputeMoodMetrics(t *testing.T) {
 					{yesterday, spreadsheets.NewNullableFloat(3.2, false)},
 					{today, spreadsheets.NewNullableFloat(4.1, false)},
 				},
+				"Sally": {
+					{yesterday, spreadsheets.NewNullableFloat(1.7, false)},
+				},
 			}},
 			teamMooods{
-				moodSummary{3.2, 4.1, 3.2, 3.65, 4.1, []mood{{yesterday, 3.2}, {today, 4.1}}},
+				moodSummary{1.7, 4.1, 1.7, 3.2, 4.1, []mood{{yesterday, 2.45}, {today, 4.1}}},
 				map[string]moodSummary{
 					"Billy": {3.2, 4.1, 3.2, 3.65, 4.1, []mood{{yesterday, 3.2}, {today, 4.1}}},
-					"Tom":   {math.NaN(), math.NaN(), 0, 0, 0, []mood{}},
+					"Tom":   {3, 3, 3, 3, 3, []mood{}},
+					"Sally": {1.7, 1.7, 1.7, 1.7, 1.7, []mood{{yesterday, 1.7}}},
 				}},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := computeMoodMetrics(tt.args.nullableMoods); !cmp.Equal(got, tt.want, cmpopts.EquateNaNs(), cmpopts.EquateEmpty()) {
-				t.Errorf("computeMoodMetrics() = %v, want %v", got, tt.want)
+			if got := computeMoodMetrics(tt.args.nullableMoods); !cmp.Equal(got, tt.expected, cmpopts.EquateNaNs(), cmpopts.EquateEmpty()) {
+				change, err := diff.Diff(tt.expected, got)
+				if err != nil {
+					t.Errorf("computeMoodMetrics() = %v, want %v", tt.expected, got)
+					return
+				}
+				t.Errorf("computeMoodMetrics() diff expected (From) vs Actual (To) :\n%+v", change)
 			}
 		})
 	}
