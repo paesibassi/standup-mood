@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"sort"
@@ -112,8 +113,17 @@ func computeMoodMetrics(nullableMoods *spreadsheets.MoodHistory) teamMooods {
 		}
 		min, _ := stats.Min(values)
 		max, _ := stats.Max(values)
+		min = fillNaNValues(min, 3)
+		max = fillNaNValues(max, 3)
 		quartiles, _ := stats.Quartile(values)
-		memberMoods[memberName] = moodSummary{min, max, quartiles.Q1, quartiles.Q2, quartiles.Q3, moods}
+		memberMoods[memberName] = moodSummary{
+			min,
+			max,
+			fillNaNValues(quartiles.Q1, min),
+			fillNaNValues(quartiles.Q2, 3),
+			fillNaNValues(quartiles.Q3, max),
+			moods,
+		}
 	}
 	min, _ := stats.Min(allValues)
 	max, _ := stats.Max(allValues)
@@ -128,6 +138,13 @@ func computeMoodMetrics(nullableMoods *spreadsheets.MoodHistory) teamMooods {
 		Values: teamAvgMoods,
 	}
 	return teamMooods{team, memberMoods}
+}
+
+func fillNaNValues(value, alternative float64) float64 {
+	if math.IsNaN((value)) || value == 0 {
+		return alternative
+	}
+	return value
 }
 
 func sortMapByDates(teamMoods map[time.Time][]float64) []time.Time {
