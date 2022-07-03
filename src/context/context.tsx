@@ -157,7 +157,7 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
           (v) => ({ date: v.Date, value: v.Mood }),
         );
         const moodHistory: DateValue[][] = members.map(
-          (memberName) => teammoods.members[memberName].values.map(
+          (memberName) => teammoods.members[memberName].values?.map(
             (v) => ({ date: v.Date, value: v.Mood }),
             ),
         );
