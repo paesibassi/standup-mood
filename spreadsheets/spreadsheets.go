@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"google.golang.org/api/option"
@@ -137,7 +138,7 @@ func MoodScoresFromSpreadsheet(spreadsheetId string, sheet string) (*MoodHistory
 			log.Println("Wrong data type read")
 			continue
 		}
-		date, err := time.Parse("1/2/2006", strVal)
+		date, err := parseDates(strVal)
 		if err != nil {
 			log.Printf("unable to parse date %v", err)
 			continue
@@ -165,4 +166,16 @@ func MoodScoresFromSpreadsheet(spreadsheetId string, sheet string) (*MoodHistory
 		}
 	}
 	return &moodScores, nil
+}
+
+func parseDates(date string) (time.Time, error) {
+	// Go datetime formatting string reference: Mon Jan 2 15:04:05 MST 2006
+	switch {
+	case strings.Contains(date, "/"):
+		return time.Parse("1/2/2006", date) // used by spreadsheets when cell is formatted as "date"
+	case strings.Contains(date, "-"):
+		return time.Parse("2006-1-2", date) // used by spreadsheets when cell is set with automatic formatting
+	default:
+		return time.Time{}, fmt.Errorf("could not find any known date format in %s", date)
+	}
 }
