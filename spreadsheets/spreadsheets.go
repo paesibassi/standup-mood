@@ -66,7 +66,7 @@ func MembersFromSpreadsheet(spreadsheetId string, sheet string) (*[]string, erro
 }
 
 func TeamsFromSpreadsheet(spreadsheetId string) (*[]string, error) {
-	readRange := "Teams!A1:A"
+	readRange := "Teams!A2:A"
 	resp, err := SS.Spreadsheets.Values.Get(spreadsheetId, readRange).Do()
 	if err != nil {
 		return nil, fmt.Errorf("unable to retrieve data from sheet: %v", err)
@@ -85,6 +85,38 @@ func TeamsFromSpreadsheet(spreadsheetId string) (*[]string, error) {
 		teams[i] = teamName
 	}
 	return &teams, nil
+}
+
+func SlackChannelFromSpreadsheet(spreadsheetId, team string) (*string, error) {
+	readRange := "Teams!A2:B"
+	resp, err := SS.Spreadsheets.Values.Get(spreadsheetId, readRange).Do()
+	if err != nil {
+		return nil, fmt.Errorf("unable to retrieve data from sheet: %v", err)
+	}
+	if len(resp.Values) == 0 {
+		return nil, errors.New("no data found")
+	}
+	for _, row := range resp.Values {
+		// first column is team name, second column (if present) is channel
+		teamName, ok := row[0].(string)
+		if !ok {
+			log.Println("Wrong data type read as team name")
+			continue
+		}
+		if teamName == team {
+			if len(row) == 1 {
+				// if the row includes only one column, the channel is not specified in the spreadsheet, we can break and return
+				break
+			}
+			channel, ok := row[1].(string)
+			if !ok {
+				log.Println("Wrong data type read as team channel")
+				continue
+			}
+			return &channel, nil
+		}
+	}
+	return nil, fmt.Errorf("could not find a Slack channel for the %s team", team)
 }
 
 func WriteMoodScoresToSpreadsheet(spreadsheetId string, sheet string, members []string, date time.Time, moods map[string]NullableFloat) error {

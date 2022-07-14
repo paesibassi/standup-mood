@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/montanaflynn/stats"
+	"gitlab.com/wbaa-experiments/standup-mood/slack"
 	"gitlab.com/wbaa-experiments/standup-mood/spreadsheets"
 )
 
@@ -176,12 +177,25 @@ type moodScores struct {
 	Moods `json:"moods"`
 }
 
+// Computes the average value for an array of mood scores
+func averageMood(moods map[string]spreadsheets.NullableFloat) (float64, error) {
+	var sum float64
+	for _, mood := range moods {
+		if !mood.IsNull() {
+			v, _ := mood.Value().(float64) // if type assertion fails, v = 0 which has no effect on the sum, so no need to check
+			sum += v
+		}
+	}
+	return sum / float64(len(moods)), nil
+}
+
 func handlePostMoods(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 	spreadsheetId := os.Getenv("SPREADSHEET_ID")
 	if spreadsheetId == "" {
 		log.Fatalf("Could not retrieve spreadsheetsId from env variable.")
 	}
+
 	var body moodScores
 	err := c.BindJSON(&body)
 	if err != nil {
@@ -190,18 +204,51 @@ func handlePostMoods(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"An error occurred": msg})
 		return
 	}
+
+	team := body.Team
 	date, _ := time.Parse("2006-01-02T15:04:05.000Z", body.Date) // Layout "01/02 03:04:05PM '06 -0700"
-	members, err := spreadsheets.MembersFromSpreadsheet(string(spreadsheetId), body.Team)
+	members, err := spreadsheets.MembersFromSpreadsheet(string(spreadsheetId), team)
 	if err != nil {
 		msg := fmt.Sprintf("could not fetch member list from spreadsheet: %v", err)
 		log.Println(msg)
 		c.JSON(http.StatusInternalServerError, gin.H{"An error occurred": msg})
 		return
 	}
+
 	todayMoods := make(map[string]spreadsheets.NullableFloat)
 	for k, v := range body.Moods {
 		todayMoods[k] = spreadsheets.NewNullableFloat(v, false)
 	}
-	spreadsheets.WriteMoodScoresToSpreadsheet(string(spreadsheetId), body.Team, *members, date, todayMoods)
+
+	err = spreadsheets.WriteMoodScoresToSpreadsheet(string(spreadsheetId), team, *members, date, todayMoods)
+	if err != nil {
+		msg := fmt.Sprintf("could not save mood scores to spreadsheet: %v", err)
+		log.Println(msg)
+		c.JSON(http.StatusInternalServerError, gin.H{"An error occurred": msg})
+		return
+	}
+
+	avg, err := averageMood(todayMoods)
+	if err != nil {
+		msg := fmt.Sprintf("could not compute mood average with today's moods: %v", err)
+		log.Println(msg)
+		c.JSON(http.StatusInternalServerError, gin.H{"An error occurred": msg})
+	}
+
+	channel, err := spreadsheets.SlackChannelFromSpreadsheet(spreadsheetId, team)
+	if err != nil {
+		msg := fmt.Sprintf("could not find slack channel: %v", err)
+		log.Println(msg)
+	} else {
+		err = slack.SendMessageToChannel(
+			*channel,
+			fmt.Sprintf("%d people in the standup today in the %s team, average mood is %.2f", len(todayMoods), team, avg),
+		)
+		if err != nil {
+			msg := fmt.Sprintf("could not send slack message: %v", err)
+			log.Println(msg)
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{"moods": len(todayMoods)})
 }
