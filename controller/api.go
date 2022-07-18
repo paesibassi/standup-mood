@@ -16,7 +16,6 @@ import (
 )
 
 func handleMembers(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
 	spreadsheetId := os.Getenv("SPREADSHEET_ID")
 	if spreadsheetId == "" {
 		log.Fatalf("Could not retrieve spreadsheetsId from env variable.")
@@ -33,7 +32,6 @@ func handleMembers(c *gin.Context) {
 }
 
 func handleTeams(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
 	spreadsheetId := os.Getenv("SPREADSHEET_ID")
 	if spreadsheetId == "" {
 		log.Fatalf("Could not retrieve spreadsheetsId from env variable.")
@@ -50,15 +48,13 @@ func handleTeams(c *gin.Context) {
 
 // This handles a preflight call from the browser to check headers, required for CORS rules
 func handleOptions(c *gin.Context) {
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-	c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+	c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-Auth-Key, Authorization, Cache-Control")
 	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET")
 	c.AbortWithStatus(http.StatusNoContent)
 }
 
 func handleMoods(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
 	spreadsheetId := os.Getenv("SPREADSHEET_ID")
 	if spreadsheetId == "" {
 		log.Fatalf("Could not retrieve spreadsheetsId from env variable.")
@@ -190,7 +186,6 @@ func averageMood(moods map[string]spreadsheets.NullableFloat) (float64, error) {
 }
 
 func handlePostMoods(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
 	spreadsheetId := os.Getenv("SPREADSHEET_ID")
 	if spreadsheetId == "" {
 		log.Fatalf("Could not retrieve spreadsheetsId from env variable.")

@@ -10,6 +10,7 @@ import { DateValue } from '../components/visualization/sparkline';
 
 const initialState = getInitialState();
 const AppContext = createContext(initialState);
+const apiKey = process.env.REACT_APP_APIKEY ?? 'invalid key';
 const apiRoot = process.env.NODE_ENV === 'development' ? 'http://localhost:8282' : '';
 
 const increment = 1;
@@ -109,7 +110,9 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
     async function fetchMembers(selectedTeam: string): Promise<string[]> {
       try {
         const endpoint = `${apiRoot}/api/members?team=${selectedTeam}`;
-        const response = await fetch(endpoint);
+        const response = await fetch(endpoint, {
+          headers: { 'X-Auth-Key': apiKey },
+        });
         const members: string[] = await response.json();
         const teamState = initializeTeam(members);
         setState((s) => ({ ...s, ...teamState }));
@@ -151,7 +154,9 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
         const members: string[] = await fetchMembers(selectedTeam);
         if (members.length === 0) return;
         const endpoint = `${apiRoot}/api/moods?team=${selectedTeam}`;
-        const response = await fetch(endpoint);
+        const response = await fetch(endpoint, {
+          headers: { 'X-Auth-Key': apiKey },
+        });
         const teammoods: TeamMoods = await response.json();
         const teamHistory: DateValue[] = teammoods.team.values.map(
           (v) => ({ date: v.Date, value: v.Mood }),
@@ -264,6 +269,7 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
             moods: moodScores,
           }),
           headers: {
+            'X-Auth-Key': apiKey,
             'content-type': 'application/json',
           },
         });

@@ -9,7 +9,7 @@ import (
 	"github.com/pjebs/restgate"
 )
 
-func Authorizer(xkey string, debug bool) gin.HandlerFunc {
+func authorizer(xkey string, debug bool) gin.HandlerFunc {
 	// Initialize Restgate
 	rgAuth := restgate.New(
 		"X-Auth-Key",
@@ -33,6 +33,20 @@ func Authorizer(xkey string, debug bool) gin.HandlerFunc {
 		if !nextCalled {
 			c.AbortWithStatus(401)
 		}
+	}
+}
+
+func originWhiteLister() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		origin, ok := c.Request.Header["Origin"]
+		if ok {
+			switch origin[0] {
+			case "http://localhost:5002", "https://standup-mood.ue.r.appspot.com/":
+				c.Header("Access-Control-Allow-Origin", origin[0])
+				c.Header("Vary", "Origin")
+			}
+		}
+		c.Next()
 	}
 }
 
