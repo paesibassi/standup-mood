@@ -16,10 +16,11 @@ func authorizer(xkey string, debug bool) gin.HandlerFunc {
 		"X-Auth-Secret",
 		restgate.Static,
 		restgate.Config{
-			Key:                []string{xkey},
-			Secret:             []string{""},
-			Debug:              debug,
-			HTTPSProtectionOff: debug,
+			Key:                     []string{xkey},
+			Secret:                  []string{""},
+			Debug:                   debug,
+			HTTPSProtectionOff:      debug,
+			GAE_FlexibleEnvironment: !debug,
 		},
 	)
 
