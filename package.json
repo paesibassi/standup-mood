@@ -1,6 +1,6 @@
 {
   "name": "standup-mood",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Standup Mood App",
   "main": "index.js",
   "scripts": {
