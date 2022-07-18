@@ -262,7 +262,7 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
       const response = await fetch(endpoint,
         {
           method: 'post',
-          mode: 'same-origin',
+          mode: process.env.NODE_ENV === 'development' ? 'cors' : 'same-origin',
           body: JSON.stringify({
             date: new Date().toISOString(), // current UTC datetime
             team: state.selectedTeam,
