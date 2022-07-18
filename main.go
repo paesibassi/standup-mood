@@ -14,10 +14,6 @@ import (
 
 func main() {
 	flag.Parse()
-	xkey := os.Getenv("X_KEY")
-	if xkey == "" {
-		log.Fatalln("authorization key not specified")
-	}
 
 	// check if running locally (dev) or on GAE (prod)
 	var debug bool
@@ -37,8 +33,7 @@ func main() {
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
 	r.TrustedPlatform = gin.PlatformGoogleAppEngine
-	r.Use(controller.Authorizer(xkey, debug))
-	controller.SetupRoutes(r)
+	controller.SetupRoutes(r, debug)
 
 	port := "8282"
 	if !debug {
