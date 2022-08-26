@@ -1,10 +1,10 @@
 import React, {
- createContext, FC, ReactNode, useCallback, useContext, useEffect, useState,
+  createContext, FC, ReactNode, useCallback, useContext, useEffect, useState,
 } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   getInitialState, initializeTeam, startButtonValues, State,
- } from './state';
+} from './state';
 import { individualSeconds, progressPerc, progressVariant } from '../util';
 import { DateValue } from '../components/visualization/sparkline';
 
@@ -18,8 +18,8 @@ const refreshRate = 1000; // 1 second
 let timerID: ReturnType<typeof setInterval>;
 
 const tick = (
-    updateState: (p: Partial<State>) => void, memberIdx: number, elapsedSecs: number[],
-  ) => {
+  updateState: (p: Partial<State>) => void, memberIdx: number, elapsedSecs: number[],
+) => {
   const secs = elapsedSecs;
   secs[memberIdx] += increment;
   updateState({ elapsedSecs: secs });
@@ -39,8 +39,8 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
     if (state.running) {
       timerID = setInterval(
         () => tick(updateState, state.memberIdx, state.elapsedSecs), refreshRate,
-        );
-      }
+      );
+    }
     return () => {
       clearInterval(timerID);
     };
@@ -53,7 +53,7 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
   const barColors = elapsedPercents.map((p, i) => progressVariant(p, state.completedBars[i]));
   const sumMood = state.memberScores.filter(
     (_, i) => state.activeMembers[i],
-    ).reduce((a, b) => a + b, 0);
+  ).reduce((a, b) => a + b, 0);
   const averageMood = sumMood / state.activeMembers.filter(Boolean).length;
   const startButtonState = (): startButtonValues => {
     if (state.running) {
@@ -65,12 +65,12 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
   };
 
   const showAlertMessage = (messageHeading: string, messageBody: string): void => {
-    setState({
-      ...state,
+    setState((s) => ({
+      ...s,
       isAlertVisible: true,
       messageHeading,
       messageBody,
-    });
+    }));
   };
 
   useEffect(() => {
@@ -78,8 +78,8 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
       const path = location.pathname.split('/');
       // root path === ["", ""]
       if (path.length > 2 && path[1] === 'team') {
-      const selectedTeam = path[2];
-      setState((s) => ({ ...s, selectedTeam }));
+        const selectedTeam = path[2];
+        setState((s) => ({ ...s, selectedTeam }));
       }
     }
     setTeamOnLocation();
@@ -87,20 +87,20 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
 
   useEffect(() => {
     async function fetchTeams() {
-        try {
-            const endpoint = `${apiRoot}/api/teams`;
-            const response = await fetch(endpoint);
-            const teams: string[] = await response.json();
-            setState((s) => ({ ...s, teams }));
-        } catch (error) {
-          /// avoid using showAlertMessage here to avoid the additional dependency for useMemo
-          setState((s) => ({
-            ...s,
-            isAlertVisible: true,
-            messageHeading: 'Error',
-            messageBody: `Something went wrong, an error occurred when fetching members: ${error}`,
-          }));
-        }
+      try {
+        const endpoint = `${apiRoot}/api/teams`;
+        const response = await fetch(endpoint);
+        const teams: string[] = await response.json();
+        setState((s) => ({ ...s, teams }));
+      } catch (error) {
+        /// avoid using showAlertMessage here to avoid the additional dependency for useMemo
+        setState((s) => ({
+          ...s,
+          isAlertVisible: true,
+          messageHeading: 'Error',
+          messageBody: `Something went wrong, an error occurred when fetching members: ${error}`,
+        }));
+      }
     }
     // since it depends on state.teams, this should run only once
     fetchTeams();
@@ -164,7 +164,7 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
         const moodHistory: DateValue[][] = members.map(
           (memberName) => teammoods.members[memberName].values?.map(
             (v) => ({ date: v.Date, value: v.Mood }),
-            ),
+          ),
         );
         setState((s) => ({ ...s, teamHistory, moodHistory }));
       } catch (error) {
@@ -184,21 +184,21 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
     const { memberScores } = state;
     if (Number.isNaN(value) || value > 50) return;
     // let user type decimal numbers between 1 and 5 without the comma, automatically convert them
-    let newValue:number;
+    let newValue: number;
     if (value > 5) {
       newValue = value / 10;
     } else {
       newValue = value;
     }
     memberScores[idx] = newValue;
-    updateState({ memberScores });
+    updateState({ memberScores, submitted: false });
   };
 
   const handleChangeTeam = (
-      eventKey: string | null,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      event: React.SyntheticEvent<unknown, Event>,
-    ): void => {
+    eventKey: string | null,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    event: React.SyntheticEvent<unknown, Event>,
+  ): void => {
     if (eventKey) {
       navigate(`/team/${eventKey}`);
     }
@@ -249,14 +249,15 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
   };
 
   const handleSubmit = async () => {
+    updateState({ submitted: true });
     const endpoint = `${apiRoot}/api/moods`;
     const moodScores = state.members.reduce(
       (ms: { [key: string]: number; }, name: string, i: number) => {
-      if (state.activeMembers[i]) {
-        ms[name] = state.memberScores[i]; // eslint-disable-line no-param-reassign
-      }
-      return ms;
-    }, {},
+        if (state.activeMembers[i]) {
+          ms[name] = state.memberScores[i]; // eslint-disable-line no-param-reassign
+        }
+        return ms;
+      }, {},
     );
     try {
       const response = await fetch(endpoint,
@@ -276,11 +277,13 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
       const data = await response.json();
       if (!response.ok) {
         showAlertMessage('Error', `Something went wrong, response not ok: ${response.statusText}`);
+        updateState({ submitted: false });
       } else {
         showAlertMessage('Success!', `Stored ${data.moods} mood scores for today`);
       }
     } catch (error) {
       showAlertMessage('Error', `Something went wrong, an error occurred when posting the moods: ${error}`);
+      updateState({ submitted: false });
     }
   };
 
@@ -294,6 +297,7 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
     updateState({
       individualTime: individualSeconds(state.totalTime, activeMembers),
       activeMembers,
+      submitted: false,
     });
   };
 
@@ -321,7 +325,7 @@ export const GlobalProvider: FC<ReactNode> = ({ children }) => {
         handleSwitch,
       }}
       >
-        { children }
+        {children}
       </AppContext.Provider>
     </React.StrictMode>
   );

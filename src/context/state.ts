@@ -19,7 +19,7 @@ export type State = {
   messageHeading: string;
   messageBody: string;
   setState?: (s: Omit<State, 'setState'>) => void;
-  updateState?: (s: Omit<State, 'updateState'>) => void;
+  updateState?: (p: Partial<State>) => void;
   teamHistory?: DateValue[];
   moodHistory?: DateValue[][];
   barColors?: string[];
@@ -28,6 +28,7 @@ export type State = {
   numActiveMembers?: number;
   averageMood?: number;
   startButtonState?: startButtonValues;
+  submitted: boolean;
   showAlertMessage?: (h: string, b: string) => void;
   handleChangeMood?: (idx: number, value: number) => void;
   handleChangeTeam?: (eventKey: string | null, event: React.SyntheticEvent<unknown, Event>) => void;
@@ -83,6 +84,7 @@ export function getInitialState(): State {
       messageHeading: '',
       running: false,
       selectedTeam: null,
+      submitted: false,
       teams: [],
       totalTime: initialTotalTime,
   };
